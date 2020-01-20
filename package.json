@@ -1,0 +1,29 @@
+{
+  "name": "smart_antrian",
+  "version": "1.0.0",
+  "description": "smart application to manage queue at public facility like hospital, station and etc",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ariefputranto/smart_antrian_v2.git"
+  },
+  "keywords": [
+    "smart",
+    "queue"
+  ],
+  "author": "Arief Putranto",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ariefputranto/smart_antrian_v2/issues"
+  },
+  "homepage": "https://github.com/ariefputranto/smart_antrian_v2#readme",
+  "dependencies": {
+    "fastify": "^2.11.0",
+    "fastify-jwt": "^1.2.1",
+    "fastify-ws": "^1.0.3",
+    "mongodb": "^3.5.1"
+  }
+}
