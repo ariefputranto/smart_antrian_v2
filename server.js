@@ -1,16 +1,17 @@
 'use strict'
 
-const fastify = require('fastify')()
+const fastify = require('fastify')({ logger: true })
+const path = require('path')
 
-// register jwt auth
-fastify.register(require('fastify-jwt'), {
-	// AriefPutrantoSmartAntrianProjectTa2020
-	secret: 'ca19505eede3d142766672bfd4504fd7'
+// register
+fastify.register(require('fastify-ws'))
+fastify.register(require('./config/jwt_auth.js'))
+fastify.register(require('fastify-static'), {
+  root: path.join(__dirname, 'public'),
+  prefix: '/public/', // optional: default '/'
 })
 
-// register websockets
-fastify.register(require('fastify-ws'))
-
+// web socket
 fastify.ready(err => {
 	if (err) throw err
 
@@ -24,22 +25,12 @@ fastify.ready(err => {
 	})
 })
 
-// in order to get the user use request.user
-fastify.addHook("onRequest", async (request, reply) => {
-	try {
-		await request.jwtVerify()
-	} catch (err) {
-		reply.send(err)
-	}
-})
+// route
+fastify.register(require('./routes/common.js'))
+fastify.register(require('./routes/admin.js'), { prefix: "admin" })
+fastify.register(require('./routes/user.js'), { prefix: "user" })
 
-
-fastify.post('/signup', (req, reply) => {
-	// some code
-	const token = fastify.jwt.sign({ payload })
-	reply.send({ token })
-})
- 
+// run
 fastify.listen(3000, err => {
 	if (err) throw err
 })
