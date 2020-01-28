@@ -29,6 +29,7 @@
     "fastify-static": "^2.5.1",
     "fastify-ws": "^1.0.3",
     "mongoose": "^5.8.9",
+    "password-hash": "^1.2.2",
     "path": "^0.12.7"
   },
   "devDependencies": {
