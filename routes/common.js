@@ -9,7 +9,6 @@ async function apiRoutes(fastify, opts, next) {
 	})
 
 	fastify.post('/sign-up', UserController.signUp)
-	fastify.get('/user/list', UserController.listUser)
 	fastify.post('/login', UserController.login)
 }
 

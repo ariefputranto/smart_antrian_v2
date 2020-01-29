@@ -5,7 +5,7 @@ const schema = new mongoose.Schema({
   service_provider_id: {type: mongoose.Schema.Types.ObjectId, ref: 'ServiceProvider'},
   name: String,
   description: String,
-  number_counter: {type:Number, default:1},
+  number_counter: {type: Number, default: 1},
   code: String,
   time: Date
 })
