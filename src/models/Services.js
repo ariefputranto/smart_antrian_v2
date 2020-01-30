@@ -7,7 +7,7 @@ const schema = new mongoose.Schema({
   description: String,
   number_counter: {type: Number, default: 1},
   code: String,
-  time: Date
+  time: {type: Date, default: Date.now}
 })
 
 module.exports = mongoose.model('Services', schema)

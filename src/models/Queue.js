@@ -8,7 +8,7 @@ const schema = new mongoose.Schema({
   number: Number,
   is_hold: {type: Boolean, default: false},
   is_called: {type: Boolean, default: false},
-  time: Date
+  time: {type: Date, default: Date.now}
 })
 
 module.exports = mongoose.model('Queue', schema)
