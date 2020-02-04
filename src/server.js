@@ -27,6 +27,7 @@ mongoose.connect('mongodb://localhost:27017/smart_antrian', { useNewUrlParser: t
 
 // route
 fastify.register(require('../routes/common.js'))
+fastify.register(require('../routes/administrator.js'), { prefix: "api/administrator" })
 fastify.register(require('../routes/admin.js'), { prefix: "api/admin" })
 fastify.register(require('../routes/user.js'), { prefix: "api/user" })
 

@@ -8,7 +8,6 @@ async function apiRoutes(fastify, opts) {
 		reply.sendFile('index.html')
 	})
 
-	fastify.post('/sign-up', UserController.signUp)
 	fastify.post('/login', UserController.login)
 	fastify.post('/login-guest', UserController.loginGuest)
 }
