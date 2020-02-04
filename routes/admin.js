@@ -1,9 +1,7 @@
 const AuthMiddleware = require('../src/middleware/auth')
 const AdminMiddleware = require('../src/middleware/admin')
 
-var UserController = require('../src/controllers/UserController')
-var ServiceProviderController = require('../src/controllers/ServiceProviderController')
-var UserServiceProviderController = require('../src/controllers/UserServiceProviderController')
+var ServicesController = require('../src/controllers/ServicesController')
 
 async function apiRoutes(fastify, opts) {
 	// regis middleware
@@ -11,13 +9,18 @@ async function apiRoutes(fastify, opts) {
 	fastify.register(AdminMiddleware)
 
 	// initialize controller
-	UserController = new UserController(fastify)
-	ServiceProviderController = new ServiceProviderController(fastify)
-	UserServiceProviderController = new UserServiceProviderController(fastify)
+	ServicesController = new ServicesController()
 
 	fastify.get('/', async (req, reply) => {
 		return req.user
 	})
+
+	// Service Provider
+	fastify.get('/services', ServicesController.listServices)
+	fastify.get('/services/:id', ServicesController.singleServices)
+	fastify.post('/services', ServicesController.addServices)
+	fastify.put('/services/:id', ServicesController.updateServices)
+	fastify.delete('/services/:id', ServicesController.deleteServices)
 }
 
 module.exports = apiRoutes
