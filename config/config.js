@@ -6,7 +6,10 @@ async function plugin (fastify, opts) {
   fastify.register(require('fastify-ws'))
 
   // register jwt auth
-  fastify.register(require('./jwt_auth.js'))
+  fastify.register(require("fastify-jwt"), {
+    // AriefPutrantoSmartAntrianProjectTa2020
+    secret: "ca19505eede3d142766672bfd4504fd7"
+  })
 
   // register html
   fastify.register(require('fastify-static'), {

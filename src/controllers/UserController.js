@@ -7,6 +7,7 @@ class UserController {
 	constructor (fastify) {
 		this.fastify = fastify
 		this.login = this.login.bind(this)
+		this.loginGuest = this.loginGuest.bind(this)
 		this.changeRoles = this.changeRoles.bind(this)
 	}
 
@@ -88,6 +89,30 @@ class UserController {
 
 		user = JSON.parse(JSON.stringify(user))
 		const token = this.fastify.jwt.sign(user, {expiresIn: 86400})
+
+		reply.send({'statusCode': 200, 'message': 'Successfully login', 'data': {'token': token}})
+	}
+
+	async loginGuest (req, reply) {
+		if (!req.body) {
+			reply.send({'statusCode': 500, 'message': 'Body empty', 'data': {}})
+			return
+		}
+
+		var request = req.body
+		if (!request.imei && !request.expired_in) {
+			reply.send({'statusCode': 500, 'message': 'Imei and Expired is needed', 'data': {}})
+			return
+		}
+
+		var expiredIn = request.expired_in
+		var user = {
+			name: "Guest " + request.imei,
+			username: "Guest#" + request.imei,
+			roles: 0,
+			time: new Date(),
+		}
+		const token = this.fastify.jwt.sign(user, {expiresIn: expiredIn})
 
 		reply.send({'statusCode': 200, 'message': 'Successfully login', 'data': {'token': token}})
 	}
@@ -289,7 +314,6 @@ class UserController {
 		} catch(e) {
 			reply.send({'statusCode': 500, 'message': e.message, 'data': {}})
 		}
-
 	}
 
 	async changeRoles (req, reply) {
@@ -336,7 +360,6 @@ class UserController {
 	    } catch(e) {
 			reply.send({'statusCode': 500, 'message': e.message, 'data': {}})
 	    }
-
 	}
 
 	roles () {

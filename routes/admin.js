@@ -1,29 +1,37 @@
+const AuthMiddleware = require('../src/middleware/auth')
+const AdminMiddleware = require('../src/middleware/admin')
+
 var UserController = require('../src/controllers/UserController')
 var ServiceProviderController = require('../src/controllers/ServiceProviderController')
 
-async function apiRoutes(fastify, opts, next) {
+async function apiRoutes(fastify, opts) {
+	// regis middleware
+	fastify.register(AuthMiddleware)
+	fastify.register(AdminMiddleware)
+
+	// initialize controller
 	UserController = new UserController(fastify)
 	ServiceProviderController = new ServiceProviderController(fastify)
 
-	fastify.get('/', { onRequest: [fastify.authenticate] }, async (req, reply) => {
+	fastify.get('/', async (req, reply) => {
 		return req.user
 	})
 
 	// Users
-	fastify.get('/user', { onRequest: [fastify.authenticate] }, UserController.listUser)
-	fastify.get('/user/:id', { onRequest: [fastify.authenticate] }, UserController.singleUser)
-	fastify.put('/user/:id', { onRequest: [fastify.authenticate] }, UserController.updateUser)
-	fastify.delete('/user/:id', { onRequest: [fastify.authenticate] }, UserController.deleteUser)
-	fastify.post('/user/assign-service-provider', { onRequest: [fastify.authenticate] }, UserController.assignServiceProvider)
-	fastify.post('/user/remove-service-provider', { onRequest: [fastify.authenticate] }, UserController.removeServiceProvider)
-	fastify.post('/user/change-roles', { onRequest: [fastify.authenticate] }, UserController.changeRoles)
+	fastify.get('/user', UserController.listUser)
+	fastify.get('/user/:id', UserController.singleUser)
+	fastify.put('/user/:id', UserController.updateUser)
+	fastify.delete('/user/:id', UserController.deleteUser)
+	fastify.post('/user/assign-service-provider', UserController.assignServiceProvider)
+	fastify.post('/user/remove-service-provider', UserController.removeServiceProvider)
+	fastify.post('/user/change-roles', UserController.changeRoles)
 
 	// Service Provider
-	fastify.get('/service-provider', { onRequest: [fastify.authenticate] }, ServiceProviderController.listServiceProvider)
-	fastify.get('/service-provider/:id', { onRequest: [fastify.authenticate] }, ServiceProviderController.singleServiceProvider)
-	fastify.post('/service-provider', { onRequest: [fastify.authenticate] }, ServiceProviderController.addServiceProvider)
-	fastify.put('/service-provider/:id', { onRequest: [fastify.authenticate] }, ServiceProviderController.updateServiceProvider)
-	fastify.delete('/service-provider/:id', { onRequest: [fastify.authenticate] }, ServiceProviderController.deleteServiceProvider)
+	fastify.get('/service-provider', ServiceProviderController.listServiceProvider)
+	fastify.get('/service-provider/:id', ServiceProviderController.singleServiceProvider)
+	fastify.post('/service-provider', ServiceProviderController.addServiceProvider)
+	fastify.put('/service-provider/:id', ServiceProviderController.updateServiceProvider)
+	fastify.delete('/service-provider/:id', ServiceProviderController.deleteServiceProvider)
 }
 
 module.exports = apiRoutes
