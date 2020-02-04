@@ -1,13 +1,17 @@
 const mongoose = require('mongoose')
+const mongoosePaginate = require('mongoose-paginate-v2')
 
 const schema = new mongoose.Schema({
-  user_id: {type: mongoose.Schema.Types.ObjectId, ref: 'User'},
+  user_id: {type: mongoose.Schema.Types.ObjectId, ref: 'Users'},
   service_provider_id: {type: mongoose.Schema.Types.ObjectId, ref: 'ServiceProvider'},
   service_id: {type: mongoose.Schema.Types.ObjectId, ref: 'Services'},
-  assign_user_id: {type: mongoose.Schema.Types.ObjectId, ref: 'User'},
+  assign_user_id: {type: mongoose.Schema.Types.ObjectId, ref: 'Users'},
   name: String,
   token_expiration_time: Number, // in second
   time: {type: Date, default: Date.now}
 })
+
+schema.index({ service_provider_id: 1, name: 1 }, { unique: true })
+schema.plugin(mongoosePaginate)
 
 module.exports = mongoose.model('Loket', schema)

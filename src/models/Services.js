@@ -11,6 +11,7 @@ const schema = new mongoose.Schema({
   time: {type: Date, default: Date.now}
 })
 
+schema.index({ service_provider_id: 1, name: 1 }, { unique: true })
 schema.plugin(mongoosePaginate)
 
 module.exports = mongoose.model('Services', schema)

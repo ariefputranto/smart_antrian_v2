@@ -65,7 +65,7 @@ class ServicesController {
 		}
 
 		if (!request.name || !request.number_loket || !request.code ) {
-			reply.send({'statusCode': 500, 'message': 'Name, description, number loket and code must defined', 'data': {}})
+			reply.send({'statusCode': 500, 'message': 'Name, number loket and code must defined', 'data': {}})
 			return
 		}
 
