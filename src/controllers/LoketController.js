@@ -4,33 +4,7 @@ const Services = require('../models/Services')
 const Users = require('../models/Users')
 
 class LoketController {
-	constructor () {
-		this.listLoket = this.listLoket.bind(this)
-		this.singleLoket = this.singleLoket.bind(this)
-		this.addLoket = this.addLoket.bind(this)
-		this.updateLoket = this.updateLoket.bind(this)
-		this.deleteLoket = this.deleteLoket.bind(this)
-	}
-
-	async checkUserServiceProvider (req, reply) {
-		// check user service provider
-		try {
-			var userServiceProvider = await UserServiceProvider.findOne({user_id: req.user._id})
-		} catch(e) {
-			reply.send({'statusCode': 500, 'message': e.message, 'data': {}})
-			return
-		}
-
-		if (userServiceProvider == null) {
-			reply.send({'statusCode': 500, 'message': 'User not assign to service provider', 'data': {}})
-			return
-		}
-
-		this.userServiceProvider = userServiceProvider
-	}
-
 	async listLoket (req, reply) {
-		await this.checkUserServiceProvider(req, reply)
 		var page = req.query && req.query.page ? req.query.page : 1
 		var perPage = req.query && req.query.perPage ? req.query.perPage : 10
 
@@ -41,7 +15,7 @@ class LoketController {
 		}
 
 		try {
-			const loket = await Loket.paginate({service_provider_id: this.userServiceProvider._id}, options)
+			const loket = await Loket.paginate({service_provider_id: req.user.service_provider}, options)
 			reply.send({'statusCode': 200, 'message': '', 'data': loket})
 		} catch(e) {
 			reply.send({'statusCode': 500, 'message': e.message, 'data': {}})
@@ -49,10 +23,9 @@ class LoketController {
 	}
 
 	async singleLoket (req, reply) {
-		await this.checkUserServiceProvider(req, reply)
 		try {
 			const id = req.params.id
-			const loket = await Loket.findOne({_id: id, service_provider_id: this.userServiceProvider._id})
+			const loket = await Loket.findOne({_id: id, service_provider_id: req.user.service_provider})
 			reply.send({'statusCode': 200, 'message': '', 'data': loket})
 		} catch(e) {
 			reply.send({'statusCode': 500, 'message': e.message, 'data': {}})
@@ -60,15 +33,14 @@ class LoketController {
 	}
 
 	async addLoket (req, reply) {
-		await this.checkUserServiceProvider(req, reply)
 		var request = req.body
 		if (!request) {
 			reply.send({'statusCode': 500, 'message': 'Body empty', 'data': {}})
 			return
 		}
 
-		if (!request.name || !request.service_id || !request.token_expiration_time ) {
-			reply.send({'statusCode': 500, 'message': 'Name, service and token expiration must defined', 'data': {}})
+		if (!request.name || !request.service_id || !request.token_expiration_time || !request.latitude || !request.longitude ) {
+			reply.send({'statusCode': 500, 'message': 'Name, service, token expiration, latitude and longitude must defined', 'data': {}})
 			return
 		}
 
@@ -80,7 +52,7 @@ class LoketController {
 		}
 
 		try {
-			var loket = await Loket.find({service_provider_id: this.userServiceProvider._id, service_id: service._id})
+			var loket = await Loket.find({service_provider_id: req.user.service_provider, service_id: service._id})
 		} catch(e) {
 			reply.send({'statusCode': 500, 'message': e.message, 'data': {}})
 			return
@@ -93,11 +65,21 @@ class LoketController {
 
 		var data = {
 			user_id: req.user._id,
-			service_provider_id: this.userServiceProvider._id,
+			service_provider_id: req.user.service_provider,
 			service_id: service._id,
 			name: request.name,
 			token_expiration_time: request.token_expiration_time,
+			latitude: request.latitude,
+			longitude: request.longitude,
 			time: new Date()
+		}
+
+		if (request.inner_distance) {
+			data.inner_distance = request.inner_distance
+		}
+
+		if (request.outer_distance) {
+			data.outer_distance = request.outer_distance
 		}
 
 		if (request.assign_user_id) {
@@ -112,7 +94,7 @@ class LoketController {
 		}
 
 		try {
-			var loket = await Loket.findOne({service_provider_id: this.userServiceProvider._id, name: data.name})
+			var loket = await Loket.findOne({service_provider_id: req.user.service_provider, name: data.name})
 		} catch(e) {
 			reply.send({'statusCode': 500, 'message': e.message, 'data': {}})
 			return
@@ -133,7 +115,6 @@ class LoketController {
 	}
 
 	async updateLoket (req, reply) {
-		await this.checkUserServiceProvider(req, reply)
 		const id = req.params.id
 	    const request = req.body
 
@@ -143,7 +124,7 @@ class LoketController {
 	    }
 
 	    try {
-	    	var loket = await Loket.findOne({_id: id, service_provider_id: this.userServiceProvider._id})
+	    	var loket = await Loket.findOne({_id: id, service_provider_id: req.user.service_provider})
 	    } catch(e) {
 			reply.send({'statusCode': 500, 'message': e.message, 'data': {}})
 			return
@@ -156,7 +137,7 @@ class LoketController {
 
 	    var param = {
 	    	user_id: req.user._id,
-			service_provider_id: this.userServiceProvider._id
+			service_provider_id: req.user.service_provider
 	    }
 
 		if (request.service_id) {
@@ -168,7 +149,7 @@ class LoketController {
 			}
 
 			try {
-				var loket = await Loket.find({service_provider_id: this.userServiceProvider._id, service_id: service._id})
+				var loket = await Loket.find({service_provider_id: req.user.service_provider, service_id: service._id})
 			} catch(e) {
 				reply.send({'statusCode': 500, 'message': e.message, 'data': {}})
 				return
@@ -187,7 +168,23 @@ class LoketController {
 		}
 
 		if (request.token_expiration_time) {
-			param.number_loket = request.token_expiration_time
+			param.token_expiration_time = request.token_expiration_time
+		}
+
+		if (request.latitude) {
+			param.latitude = request.latitude
+		}
+
+		if (request.longitude) {
+			param.longitude = request.longitude
+		}
+
+		if (request.inner_distance) {
+			data.inner_distance = request.inner_distance
+		}
+
+		if (request.outer_distance) {
+			data.outer_distance = request.outer_distance
 		}
 
 		if (request.assign_user_id) {
@@ -210,11 +207,10 @@ class LoketController {
 	}
 
 	async deleteLoket (req, reply) {
-		await this.checkUserServiceProvider(req, reply)
 		const id = req.params.id
 
 	    try {
-	    	var loket = await Loket.findOne({_id: id, service_provider_id: this.userServiceProvider._id})
+	    	var loket = await Loket.findOne({_id: id, service_provider_id: req.user.service_provider})
 	    } catch(e) {
 			reply.send({'statusCode': 500, 'message': e.message, 'data': {}})
 			return

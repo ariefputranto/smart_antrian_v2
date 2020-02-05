@@ -86,7 +86,18 @@ class UserController {
 			return
 		}
 
+		try {
+			var userServiceProvider = await UserServiceProvider.findOne({user_id : user._id})
+		} catch(e) {
+			reply.send({'statusCode': 500, 'message': 'DB error', 'data': {}})
+			return
+		}
+
 		user = JSON.parse(JSON.stringify(user))
+		if (userServiceProvider !== null) {
+			user.service_provider = userServiceProvider.service_provider_id
+		}
+
 		const token = this.fastify.jwt.sign(user, {expiresIn: 86400})
 
 		reply.send({'statusCode': 200, 'message': 'Successfully login', 'data': {'token': token}})
@@ -111,6 +122,18 @@ class UserController {
 			roles: 0,
 			time: new Date(),
 		}
+
+		try {
+			var userServiceProvider = await UserServiceProvider.findOne({user_id : user._id})
+		} catch(e) {
+			reply.send({'statusCode': 500, 'message': 'DB error', 'data': {}})
+			return
+		}
+		
+		if (userServiceProvider !== null) {
+			user.service_provider = userServiceProvider.service_provider_id
+		}
+
 		const token = this.fastify.jwt.sign(user, {expiresIn: expiredIn})
 
 		reply.send({'statusCode': 200, 'message': 'Successfully login', 'data': {'token': token}})

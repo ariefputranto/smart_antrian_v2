@@ -2,33 +2,7 @@ const Services = require('../models/Services')
 const UserServiceProvider = require('../models/UserServiceProvider')
 
 class ServicesController {
-	constructor () {
-		this.listServices = this.listServices.bind(this)
-		this.singleServices = this.singleServices.bind(this)
-		this.addServices = this.addServices.bind(this)
-		this.updateServices = this.updateServices.bind(this)
-		this.deleteServices = this.deleteServices.bind(this)
-	}
-
-	async checkUserServiceProvider (req, reply) {
-		// check user service provider
-		try {
-			var userServiceProvider = await UserServiceProvider.findOne({user_id: req.user._id})
-		} catch(e) {
-			reply.send({'statusCode': 500, 'message': e.message, 'data': {}})
-			return
-		}
-
-		if (userServiceProvider == null) {
-			reply.send({'statusCode': 500, 'message': 'User not assign to service provider', 'data': {}})
-			return
-		}
-
-		this.userServiceProvider = userServiceProvider
-	}
-
 	async listServices (req, reply) {
-		await this.checkUserServiceProvider(req, reply)
 		var page = req.query && req.query.page ? req.query.page : 1
 		var perPage = req.query && req.query.perPage ? req.query.perPage : 10
 
@@ -38,7 +12,7 @@ class ServicesController {
 		}
 
 		try {
-			const services = await Services.paginate({service_provider_id: this.userServiceProvider._id}, options)
+			const services = await Services.paginate({service_provider_id: req.user.service_provider}, options)
 			reply.send({'statusCode': 200, 'message': '', 'data': services})
 		} catch(e) {
 			reply.send({'statusCode': 500, 'message': e.message, 'data': {}})
@@ -46,10 +20,9 @@ class ServicesController {
 	}
 
 	async singleServices (req, reply) {
-		await this.checkUserServiceProvider(req, reply)
 		try {
 			const id = req.params.id
-			const services = await Services.findOne({_id: id, service_provider_id: this.userServiceProvider._id})
+			const services = await Services.findOne({_id: id, service_provider_id: req.user.service_provider})
 			reply.send({'statusCode': 200, 'message': '', 'data': services})
 		} catch(e) {
 			reply.send({'statusCode': 500, 'message': e.message, 'data': {}})
@@ -57,7 +30,6 @@ class ServicesController {
 	}
 
 	async addServices (req, reply) {
-		await this.checkUserServiceProvider(req, reply)
 		var request = req.body
 		if (!request) {
 			reply.send({'statusCode': 500, 'message': 'Body empty', 'data': {}})
@@ -71,7 +43,7 @@ class ServicesController {
 
 		var data = {
 			user_id: req.user._id,
-			service_provider_id: this.userServiceProvider._id,
+			service_provider_id: req.user.service_provider,
 			name: request.name,
 			number_loket: request.number_loket,
 			code: request.code,
@@ -83,7 +55,7 @@ class ServicesController {
 		}
 
 		try {
-			var services = await Services.findOne({service_provider_id: this.userServiceProvider._id, name: data.name})
+			var services = await Services.findOne({service_provider_id: req.user.service_provider, name: data.name})
 		} catch(e) {
 			reply.send({'statusCode': 500, 'message': e.message, 'data': {}})
 			return
@@ -104,7 +76,6 @@ class ServicesController {
 	}
 
 	async updateServices (req, reply) {
-		await this.checkUserServiceProvider(req, reply)
 		const id = req.params.id
 	    const request = req.body
 
@@ -114,7 +85,7 @@ class ServicesController {
 	    }
 
 	    try {
-	    	var services = await Services.findOne({_id: id, service_provider_id: this.userServiceProvider._id})
+	    	var services = await Services.findOne({_id: id, service_provider_id: req.user.service_provider})
 	    } catch(e) {
 			reply.send({'statusCode': 500, 'message': e.message, 'data': {}})
 			return
@@ -127,7 +98,7 @@ class ServicesController {
 
 	    var param = {
 	    	user_id: req.user._id,
-			service_provider_id: this.userServiceProvider._id
+			service_provider_id: req.user.service_provider
 	    }
 
 		if (request.name) {
@@ -155,11 +126,10 @@ class ServicesController {
 	}
 
 	async deleteServices (req, reply) {
-		await this.checkUserServiceProvider(req, reply)
 		const id = req.params.id
 
 	    try {
-	    	var services = await Services.findOne({_id: id, service_provider_id: this.userServiceProvider._id})
+	    	var services = await Services.findOne({_id: id, service_provider_id: req.user.service_provider})
 	    } catch(e) {
 			reply.send({'statusCode': 500, 'message': e.message, 'data': {}})
 			return

@@ -8,6 +8,10 @@ const schema = new mongoose.Schema({
   assign_user_id: {type: mongoose.Schema.Types.ObjectId, ref: 'Users'},
   name: String,
   token_expiration_time: Number, // in second
+  latitude: Number,
+  longitude: Number,
+  outer_distance: Number,
+  inner_distance: Number,
   time: {type: Date, default: Date.now}
 })
 
