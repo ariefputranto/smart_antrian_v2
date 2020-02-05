@@ -1,6 +1,7 @@
 const AuthMiddleware = require('../src/middleware/auth')
 const AdminMiddleware = require('../src/middleware/admin')
 
+var UserController = require('../src/controllers/UserController')
 var ServicesController = require('../src/controllers/ServicesController')
 var LoketController = require('../src/controllers/LoketController')
 
@@ -10,12 +11,20 @@ async function apiRoutes(fastify, opts) {
 	fastify.register(AdminMiddleware)
 
 	// initialize controller
+	UserController = new UserController(fastify)
 	ServicesController = new ServicesController()
 	LoketController = new LoketController()
 
 	fastify.get('/', async (req, reply) => {
 		return req.user
 	})
+
+	// Users
+	fastify.get('/user', UserController.listUserAdmin)
+	fastify.post('/user', UserController.addUserAdmin)
+	fastify.get('/user/:id', UserController.singleUserAdmin)
+	fastify.put('/user/:id', UserController.updateUserAdmin)
+	fastify.delete('/user/:id', UserController.deleteUserAdmin)
 
 	// Services
 	fastify.get('/services', ServicesController.listServices)

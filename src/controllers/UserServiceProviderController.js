@@ -127,7 +127,7 @@ class UserServiceProviderController {
 		}
 
 		try {
-			var userServiceProvider = await UserServiceProvider.findOne({ user_id: params.user_id, service_provider_id: params.service_provider_id })
+			var userServiceProvider = await UserServiceProvider.findOne(params)
 		} catch(e) {
 			reply.send({'statusCode': 500, 'message': e.message, 'data': {}})
 			return

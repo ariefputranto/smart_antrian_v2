@@ -24,6 +24,7 @@ fastify.ready(err => {
 mongoose.connect('mongodb://localhost:27017/smart_antrian', { useNewUrlParser: true, useUnifiedTopology: true })
  .then(() => console.log('MongoDB connected…'))
  .catch(err => console.log(err))
+mongoose.set('useCreateIndex', true)
 
 // route
 fastify.register(require('../routes/common.js'))

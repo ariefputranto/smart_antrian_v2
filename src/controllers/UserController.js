@@ -129,7 +129,7 @@ class UserController {
 			reply.send({'statusCode': 500, 'message': 'DB error', 'data': {}})
 			return
 		}
-		
+
 		if (userServiceProvider !== null) {
 			user.service_provider = userServiceProvider.service_provider_id
 		}
@@ -260,6 +260,215 @@ class UserController {
 		    user.roles = request.role
 	    	user.save()
 			reply.send({'statusCode': 200, 'message': 'Successfully update user role', 'data': user})
+	    } catch(e) {
+			reply.send({'statusCode': 500, 'message': e.message, 'data': {}})
+	    }
+	}
+
+	async addUserAdmin (req, reply) {
+		if (!req.body) {
+			reply.send({'statusCode': 500, 'message': 'Body empty', 'data': {}})
+			return
+		}
+
+		var request = req.body
+		if (!request.username && !request.password && !request.email && request.name) {
+			reply.send({'statusCode': 500, 'message': 'Check user input again', 'data': {}})
+			return
+		}
+
+		if (request.username.indexOf(' ') !== -1) {
+			reply.send({'statusCode': 500, 'message': 'Username must be no space', 'data': {}})
+			return
+		}
+
+		try {
+			var user = await Users.find({email: request.email, username: request.username})
+		} catch(e) {
+			reply.send({'statusCode': 500, 'message': 'DB error', 'data': {}})
+			return
+		}
+
+		if (user.length > 0) {
+			reply.send({'statusCode': 500, 'message': 'User already exist', 'data': {}})
+			return
+		}
+
+		if (req.user.service_provider == null) {
+			reply.send({'statusCode': 500, 'message': 'Service provider not set', 'data': {}})
+			return
+		}
+
+		var data = {
+			username: request.username,
+			password: Hash.generate(request.password),
+			email: request.email,
+			name: request.name,
+			time: new Date()
+		}
+
+		try {
+			user = new Users(data)
+			user.save()
+		} catch(e) {
+			reply.send({'statusCode': 500, 'message': 'DB error', 'data': {}})
+			return
+		}
+
+		var data = {
+			user_id: user._id,
+			service_provider_id: req.user.service_provider
+		}
+
+		try {
+			var userServiceProvider = await UserServiceProvider.findOne(data)
+		} catch(e) {
+			reply.send({'statusCode': 500, 'message': e.message, 'data': {}})
+			return
+		}
+
+		if (userServiceProvider != null) {
+			reply.send({'statusCode': 500, 'message': 'User already assign to service provider', 'data': {}})
+			return
+		}
+
+		try {
+			userServiceProvider = new UserServiceProvider(data)
+			userServiceProvider.save()
+			reply.send({'statusCode': 200, 'message': 'Successfully create users', 'data': {}})
+		} catch(e) {
+			reply.send({'statusCode': 500, 'message': e.message, 'data': {}})
+		}
+	}
+
+	async listUserAdmin (req, reply) {
+		var page = req.query && req.query.page ? req.query.page : 1
+		var perPage = req.query && req.query.perPage ? req.query.perPage : 10
+
+		const options = {
+			page: page,
+			limit: perPage
+		}
+
+		try {
+			var userServiceProvider = await UserServiceProvider.find({ service_provider_id: req.user.service_provider })
+		} catch(e) {
+			reply.send({'statusCode': 500, 'message': e.message, 'data': {}})
+			return
+		}
+
+		if (userServiceProvider.length == 0) {
+			reply.send({'statusCode': 500, 'message': 'User Service Provider not found!', 'data': {}})
+			return
+		}
+
+		var listUserId = [];
+		userServiceProvider.forEach( function(element, index) {
+			listUserId.push(element.user_id)
+		});
+
+		try {
+			const user = await Users.paginate({ _id: { $in: listUserId } }, options)
+			reply.send({'statusCode': 200, 'message': '', 'data': user})
+		} catch(e) {
+			reply.send({'statusCode': 500, 'message': e.message, 'data': {}})
+		}
+	}
+
+	async singleUserAdmin (req, reply) {
+		try {
+			var userServiceProvider = await UserServiceProvider.findOne({ service_provider_id: req.user.service_provider, user_id: req.params.id })
+		} catch(e) {
+			reply.send({'statusCode': 500, 'message': e.message, 'data': {}})
+			return
+		}
+
+		if (userServiceProvider == null) {
+			reply.send({'statusCode': 500, 'message': 'User Service Provider not found!', 'data': {}})
+			return
+		}
+
+		try {
+			const id = req.params.id
+			const user = await Users.findById(id)
+			reply.send({'statusCode': 200, 'message': '', 'data': user})
+		} catch(e) {
+			reply.send({'statusCode': 500, 'message': e.message, 'data': {}})
+		}
+	}
+
+	async updateUserAdmin (req, reply) {
+		const id = req.params.id
+	    const data = req.body
+
+	    if (!data) {
+			reply.send({'statusCode': 500, 'message': 'Body empty', 'data': {}})
+			return
+	    }
+
+	    try {
+			var userServiceProvider = await UserServiceProvider.findOne({ service_provider_id: req.user.service_provider, user_id: id })
+		} catch(e) {
+			reply.send({'statusCode': 500, 'message': e.message, 'data': {}})
+			return
+		}
+
+		if (userServiceProvider == null) {
+			reply.send({'statusCode': 500, 'message': 'User Service Provider not found!', 'data': {}})
+			return
+		}
+
+	    try {
+	    	var users = await Users.findById(id);
+	    } catch(e) {
+			reply.send({'statusCode': 500, 'message': e.message, 'data': {}})
+			return
+	    }
+
+	    var param = {}
+
+		if (data.name) {
+			param.name = data.name
+		}
+
+		if (data.username) {
+			param.username = data.username
+		}
+
+		if (data.password) {
+			param.password = Hash.generate(data.password)
+		}
+
+		if (data.email) {
+			param.email = data.email
+		}
+
+		try {
+		    const update = await Users.findByIdAndUpdate(id, param, { new: true, useFindAndModify: false })
+			reply.send({'statusCode': 200, 'message': 'Successfully update users', 'data': update})
+		} catch(e) {
+			reply.send({'statusCode': 500, 'message': e.message, 'data': {}})
+		}
+	}
+
+	async deleteUserAdmin (req, reply) {
+		const id = req.params.id
+		
+		try {
+			var userServiceProvider = await UserServiceProvider.findOne({ service_provider_id: req.user.service_provider, user_id: id })
+		} catch(e) {
+			reply.send({'statusCode': 500, 'message': e.message, 'data': {}})
+			return
+		}
+
+		if (userServiceProvider == null) {
+			reply.send({'statusCode': 500, 'message': 'User Service Provider not found!', 'data': {}})
+			return
+		}
+
+	    try {
+	    	var users = await Users.findByIdAndRemove(id);
+			reply.send({'statusCode': 200, 'message': 'Successfully delete users', 'data': users})
 	    } catch(e) {
 			reply.send({'statusCode': 500, 'message': e.message, 'data': {}})
 	    }
