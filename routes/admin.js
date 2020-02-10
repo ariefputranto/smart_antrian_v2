@@ -4,6 +4,7 @@ const AdminMiddleware = require('../src/middleware/admin')
 var UserController = require('../src/controllers/UserController')
 var ServicesController = require('../src/controllers/ServicesController')
 var LoketController = require('../src/controllers/LoketController')
+var QueueController = require('../src/controllers/QueueController')
 
 async function apiRoutes(fastify, opts) {
 	// regis middleware
@@ -14,6 +15,7 @@ async function apiRoutes(fastify, opts) {
 	UserController = new UserController(fastify)
 	ServicesController = new ServicesController()
 	LoketController = new LoketController()
+	QueueController = new QueueController()
 
 	fastify.get('/', async (req, reply) => {
 		return req.user
@@ -39,6 +41,12 @@ async function apiRoutes(fastify, opts) {
 	fastify.post('/loket', LoketController.addLoket)
 	fastify.put('/loket/:id', LoketController.updateLoket)
 	fastify.delete('/loket/:id', LoketController.deleteLoket)
+
+	// Queue
+	fastify.get('/queue', QueueController.listQueue)
+	fastify.post('/queue/last', QueueController.getQueue)
+	fastify.post('/queue/call', QueueController.callQueue)
+
 }
 
 module.exports = apiRoutes

@@ -12,12 +12,7 @@ fastify.ready(err => {
 
 	console.log('Server started.')
  
-	fastify.ws.on('connection', socket => {
-		console.log('Client connected.')
-
-		socket.on('message', msg => socket.send("Hi client")) // Creates an echo server
-		socket.on('close', () => console.log('Client disconnected.'))
-	})
+	fastify.ws.on('connection', require('./controllers/WsController.js'))
 })
 
 // init mongodb

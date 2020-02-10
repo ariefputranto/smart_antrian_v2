@@ -139,8 +139,7 @@ class UserServiceProviderController {
 		}
 
 		try {
-			userServiceProvider = new UserServiceProvider(params)
-			userServiceProvider.save()
+			userServiceProvider = await UserServiceProvider.create(params)
 			reply.send({'statusCode': 500, 'message': 'Successfully assign ' + user.name + ' to ' + serviceProvider.name, 'data': {}})
 		} catch(e) {
 			reply.send({'statusCode': 500, 'message': e.message, 'data': {}})

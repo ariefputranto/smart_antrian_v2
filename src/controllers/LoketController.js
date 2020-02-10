@@ -106,8 +106,7 @@ class LoketController {
 		}
 
 		try {
-			const addService = new Loket(data)
-			addService.save()
+			const addService = await Loket.create(data)
 			reply.send({'statusCode': 200, 'message': 'Successfully add new loket', 'data': {}})
 		} catch(e) {
 			reply.send({'statusCode': 500, 'message': e.message, 'data': {}})

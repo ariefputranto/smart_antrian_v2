@@ -49,8 +49,7 @@ class UserController {
 		}
 
 		try {
-			user = new Users(data)
-			user.save()
+			user = await Users.create(data)
 			reply.send({'statusCode': 200, 'message': 'Successfully create users', 'data': {}})
 		} catch(e) {
 			reply.send({'statusCode': 500, 'message': 'DB error', 'data': {}})
@@ -257,8 +256,7 @@ class UserController {
 	    }
 
 	    try {
-		    user.roles = request.role
-	    	user.save()
+	    	user.update({roles: request.role})
 			reply.send({'statusCode': 200, 'message': 'Successfully update user role', 'data': user})
 	    } catch(e) {
 			reply.send({'statusCode': 500, 'message': e.message, 'data': {}})
@@ -308,8 +306,7 @@ class UserController {
 		}
 
 		try {
-			user = new Users(data)
-			user.save()
+			user = await Users.create(data)
 		} catch(e) {
 			reply.send({'statusCode': 500, 'message': 'DB error', 'data': {}})
 			return
@@ -333,8 +330,7 @@ class UserController {
 		}
 
 		try {
-			userServiceProvider = new UserServiceProvider(data)
-			userServiceProvider.save()
+			userServiceProvider = await UserServiceProvider.create(data)
 			reply.send({'statusCode': 200, 'message': 'Successfully create users', 'data': {}})
 		} catch(e) {
 			reply.send({'statusCode': 500, 'message': e.message, 'data': {}})

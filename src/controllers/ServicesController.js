@@ -67,8 +67,7 @@ class ServicesController {
 		}
 
 		try {
-			const addService = new Services(data)
-			addService.save()
+			const addService = await Services.create(data)
 			reply.send({'statusCode': 200, 'message': 'Successfully add new service', 'data': {}})
 		} catch(e) {
 			reply.send({'statusCode': 500, 'message': e.message, 'data': {}})
