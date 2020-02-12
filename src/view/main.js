@@ -8,3 +8,5 @@ import axios from 'axios'
 Vue.use(VueAxios, axios)
 
 new Vue(Vue.util.extend({ router }, App)).$mount('#app');
+
+router.replace('/')
