@@ -98,8 +98,13 @@ class UserController {
 		}
 
 		const token = this.fastify.jwt.sign(user, {expiresIn: 86400})
+		var data = {
+			name: user.name,
+			roles: user.roles,
+			token: token,
+		}
 
-		reply.send({'statusCode': 200, 'message': 'Successfully login', 'data': {'token': token}})
+		reply.send({'statusCode': 200, 'message': 'Successfully login', 'data': data})
 	}
 
 	async loginGuest (req, reply) {
