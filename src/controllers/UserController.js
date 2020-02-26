@@ -9,6 +9,8 @@ class UserController {
 		this.login = this.login.bind(this)
 		this.loginGuest = this.loginGuest.bind(this)
 		this.changeRoles = this.changeRoles.bind(this)
+		this.updateUser = this.updateUser.bind(this)
+		this.listRoles = this.listRoles.bind(this)
 	}
 
 	async addUser (req, reply) {
@@ -98,10 +100,12 @@ class UserController {
 		}
 
 		const token = this.fastify.jwt.sign(user, {expiresIn: 86400})
+		const roles = this.roles()
 		var data = {
 			name: user.name,
-			roles: user.roles,
+			roles: roles[user.roles],
 			token: token,
+			time: user.time
 		}
 
 		reply.send({'statusCode': 200, 'message': 'Successfully login', 'data': data})
@@ -146,14 +150,35 @@ class UserController {
 	async listUser (req, reply) {
 		var page = req.query && req.query.page ? req.query.page : 1
 		var perPage = req.query && req.query.perPage ? req.query.perPage : 10
+		var username = req.query && req.query.username ? req.query.username : null
+		var name = req.query && req.query.name ? req.query.name : null
+		var email = req.query && req.query.email ? req.query.email : null
+		var role = req.query && req.query.role ? req.query.role : null
 
 		const options = {
 			page: page,
 			limit: perPage
 		}
 
+		var condition = {}
+		if (username !== null) {
+			condition.username = username
+		}
+
+		if (name !== null) {
+			condition.name = name
+		}
+
+		if (email !== null) {
+			condition.email = email
+		}
+
+		if (role !== null) {
+			condition.roles = role
+		}
+
 		try {
-			const user = await Users.paginate({}, options)
+			const user = await Users.paginate(condition, options)
 			reply.send({'statusCode': 200, 'message': '', 'data': user})
 		} catch(e) {
 			reply.send({'statusCode': 500, 'message': e.message, 'data': {}})
@@ -173,6 +198,8 @@ class UserController {
 	async updateUser (req, reply) {
 		const id = req.params.id
 	    const data = req.body
+		const roles = this.roles()
+		const rolesIndex = Object.keys(roles)
 
 	    if (!data) {
 			reply.send({'statusCode': 500, 'message': 'Body empty', 'data': {}})
@@ -202,6 +229,10 @@ class UserController {
 
 		if (data.email) {
 			param.email = data.email
+		}
+
+		if (rolesIndex.indexOf(data.role.toString()) !== -1) {
+			param.roles = data.role
 		}
 
 		try {
@@ -473,6 +504,11 @@ class UserController {
 	    } catch(e) {
 			reply.send({'statusCode': 500, 'message': e.message, 'data': {}})
 	    }
+	}
+
+	async listRoles (req, reply) {
+		const roles = this.roles()
+		reply.send({'statusCode': 200, 'message': '', 'data': roles})
 	}
 
 	roles () {

@@ -10,6 +10,7 @@ async function apiRoutes(fastify, opts) {
 
 	fastify.post('/api/login', UserController.login)
 	fastify.post('/api/login-guest', UserController.loginGuest)
+	fastify.get('/api/roles', UserController.listRoles)
 }
 
 module.exports = apiRoutes
