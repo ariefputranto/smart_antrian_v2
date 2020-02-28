@@ -1,17 +1,35 @@
 const ServiceProvider = require('../models/ServiceProvider')
+const mv = require('mv');
+const fs = require('fs');
 
 class ServiceProviderController {
 	async listServiceProvider (req, reply) {
 		var page = req.query && req.query.page ? req.query.page : 1
 		var perPage = req.query && req.query.perPage ? req.query.perPage : 10
+		var name = req.query && req.query.name ? req.query.name : null
+		var description = req.query && req.query.description ? req.query.description : null
+		var type = req.query && req.query.type ? req.query.type : null
 
 		const options = {
 			page: page,
 			limit: perPage
 		}
 
+		var condition = {}
+		if (name !== null) {
+			condition.name = { $regex: name, $options: "i" }
+		}
+
+		if (description !== null) {
+			condition.description = { $regex: '.*' + description + '.*' }
+		}
+
+		if (type !== null) {
+			condition.type = { $regex: type, $options: "i" }
+		}
+
 		try {
-			const serviceProvider = await ServiceProvider.paginate({}, options)
+			const serviceProvider = await ServiceProvider.paginate(condition, options)
 			reply.send({'statusCode': 200, 'message': '', 'data': serviceProvider})
 		} catch(e) {
 			reply.send({'statusCode': 500, 'message': e.message, 'data': {}})
@@ -48,7 +66,25 @@ class ServiceProviderController {
 		}
 
 		if (request.icon) {
-			data.icon = request.icon
+			if (request.icon.mimetype.indexOf('image') === -1) {
+				reply.send({'statusCode': 500, 'message': 'File must be image', 'data': {}})
+				return
+			}
+
+			var path = __dirname + '/../../public/uploads/'
+			var extension = request.icon.name.split('.').pop()
+			extension = request.icon.name == extension ? '' : '.' + extension
+			var fileName = new Date().getTime() + Math.round(Math.random() * 10000) + extension
+
+			// Upload file
+			var oldpath = request.icon.tempFilePath
+	        var newpath = path + fileName
+
+	        mv(oldpath, newpath, {mkdirp: true, clobber: false}, function (err) {
+        		if (err) {console.log(err)}
+        	})
+
+        	data.icon = fileName
 		}
 
 		try {
@@ -107,7 +143,32 @@ class ServiceProviderController {
 		}
 
 		if (request.icon) {
-			param.icon = request.icon
+			if (request.icon.mimetype.indexOf('image') === -1) {
+				reply.send({'statusCode': 500, 'message': 'File must be image', 'data': {}})
+				return
+			}
+
+			var path = __dirname + '/../../public/uploads/'
+			var extension = request.icon.name.split('.').pop()
+			extension = request.icon.name == extension ? '' : '.' + extension
+			var fileName = new Date().getTime() + Math.round(Math.random() * 10000) + extension
+
+			// Upload file
+			var oldpath = request.icon.tempFilePath
+	        var newpath = path + fileName
+
+	        mv(oldpath, newpath, {mkdirp: true, clobber: false}, function (err) {
+        		if (err) {console.log(err)}
+        	})
+
+			param.icon = fileName
+
+			if (serviceProvider.icon !== null) {
+				var path = __dirname + '/../../public/uploads/'
+				fs.unlink(path + serviceProvider.icon, (err) => {
+				  if (err) console.log(err)
+				});
+			}
 		}
 
 		try {
@@ -123,6 +184,14 @@ class ServiceProviderController {
 
 	    try {
 	    	var serviceProvider = await ServiceProvider.findByIdAndRemove(id);
+
+			if (serviceProvider.icon !== null) {
+				var path = __dirname + '/../../public/uploads/'
+				fs.unlink(path + serviceProvider.icon, (err) => {
+				  if (err) console.log(err)
+				});
+			}
+			
 			reply.send({'statusCode': 200, 'message': 'Successfully delete service provider', 'data': serviceProvider})
 	    } catch(e) {
 			reply.send({'statusCode': 500, 'message': e.message, 'data': {}})
