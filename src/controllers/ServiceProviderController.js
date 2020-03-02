@@ -36,6 +36,15 @@ class ServiceProviderController {
 		}
 	}
 
+	async listUserServiceProvider (req, reply) {
+		try {
+			const serviceProvider = await ServiceProvider.find()
+			reply.send({'statusCode': 200, 'message': '', 'data': serviceProvider})
+		} catch(e) {
+			reply.send({'statusCode': 500, 'message': e.message, 'data': {}})
+		}
+	}
+
 	async singleServiceProvider (req, reply) {
 		try {
 			const id = req.params.id

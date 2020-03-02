@@ -29,6 +29,7 @@ async function apiRoutes(fastify, opts) {
 
 	// Service Provider
 	fastify.get('/service-provider', ServiceProviderController.listServiceProvider)
+	fastify.get('/service-provider/all', ServiceProviderController.listUserServiceProvider)
 	fastify.get('/service-provider/:id', ServiceProviderController.singleServiceProvider)
 	fastify.post('/service-provider', ServiceProviderController.addServiceProvider)
 	fastify.put('/service-provider/:id', ServiceProviderController.updateServiceProvider)
@@ -40,6 +41,7 @@ async function apiRoutes(fastify, opts) {
 	fastify.get('/user-service-provider/service-provider/:id', UserServiceProviderController.listUserServiceProviderByServiceProvider)
 	fastify.post('/user-service-provider/assign', UserServiceProviderController.assignUserServiceProvider)
 	fastify.post('/user-service-provider/remove', UserServiceProviderController.removeUserServiceProvider)
+	fastify.post('/user-service-provider/change', UserServiceProviderController.changeUserServiceProvider)
 }
 
 module.exports = apiRoutes

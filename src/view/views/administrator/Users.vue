@@ -44,6 +44,7 @@
 			        					<td>
 			        						<button class="btn btn-sm btn-primary" title="Update User" data-toggle="modal" data-target="#add-modal" @click="modalUpdateUser(user)" style="margin-right: 5px"><i class="fa fa-check-square"></i></button>
 			        						<button class="btn btn-sm btn-danger" title="Delete User" @click="deleteUser(user._id)"><i class="fa fa-trash"></i></button>
+			        						<button class="btn btn-sm btn-info" title="Change Service Provider" @click="modalChangeServiceProvider(user)"><i class="fas fa-cubes"></i></button>
 			        					</td>
 			        				</tr>
 			        			</tbody>
@@ -151,6 +152,38 @@
         </div>
       </div>
       <!-- End Modal -->
+
+	    <!-- Modal -->
+	    <div class="modal fade" id="service-provider-modal">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h4 class="modal-title">Change Service Provider</h4>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+              <div class="row">
+              	<div class="col-lg-12">
+              		<div class="form-group">
+              			<label>Service Provider</label>
+              			<select class="form-control" v-model="serviceProvider.service_provider_id">
+              				<option value="">None</option>
+              				<option v-for="service in listServiceProvider" :value="service._id">{{service.name}}</option>
+              			</select>
+              		</div>
+              	</div>
+              </div>
+            </div>
+            <div class="modal-footer justify-content-between">
+              <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+              <button type="button" class="btn btn-primary" @click="updateServiceProvider"><i class="fa fa-plus"></i> Update</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- End Modal -->
     </div>
 </template>
 
@@ -168,6 +201,7 @@
 			return {
 				listUser: [],
 				roles: [],
+				listServiceProvider: [],
 				isCreate: true,
 				userId: '',
 				input: {
@@ -182,6 +216,10 @@
 					name: '',
 					email: '',
 					role: ''
+				},
+				serviceProvider: {
+					service_provider_id: '',
+					user_id: ''
 				},
 				pagination: {
 					response: null,
@@ -211,6 +249,18 @@
           var status = data.statusCode
           if (status == 200) {
           	this.roles = data.data
+          } else {
+            swal('Warning', data.message, 'warning')
+          }
+        })
+			},
+			getListServiceProvider: function() {
+				this.$http.get('api/administrator/service-provider/all').then((response) => {
+					console.log(response.data)
+          var data = response.data
+          var status = data.statusCode
+          if (status == 200) {
+          	this.listServiceProvider = data.data
           } else {
             swal('Warning', data.message, 'warning')
           }
@@ -301,11 +351,45 @@
 				this.pagination.page = data.page
 				this.pagination.perPage = data.perPage
 				this.getListUser()
+			},
+			modalChangeServiceProvider: function(user) {
+				this.$http.get('api/administrator/user-service-provider/user/' + user._id).then((response) => {
+					console.log(response.data)
+          var data = response.data
+          var status = data.statusCode
+          if (status == 200) {
+          	var responseData = data.data
+          	if (responseData !== null) {
+          		this.serviceProvider.service_provider_id = responseData.service_provider_id._id
+          	} 
+
+        		this.serviceProvider.user_id = user._id
+          	$('#service-provider-modal').modal('show')
+          } else {
+            swal('Warning', data.message, 'warning')
+          }
+        })
+			},
+			updateServiceProvider: function() {
+				this.$http.post('api/administrator/user-service-provider/change', this.serviceProvider).then((response) => {
+					console.log(response.data)
+          var data = response.data
+          var status = data.statusCode
+          if (status == 200) {
+            $('#service-provider-modal').modal("hide")
+            swal('Success', data.message, 'success')
+            this.serviceProvider.service_provider_id = null
+            this.serviceProvider.user_id = null
+          } else {
+            swal('Warning', data.message, 'warning')
+          }
+        })
 			}
 		},
 		mounted() {
 			this.getListUser()
 			this.getListRoles()
+			this.getListServiceProvider()
 		}
 	};
 </script>

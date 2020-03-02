@@ -127,7 +127,7 @@ class UserServiceProviderController {
 		}
 
 		try {
-			var userServiceProvider = await UserServiceProvider.findOne(params)
+			var userServiceProvider = await UserServiceProvider.findOne({user_id: params.user_id})
 		} catch(e) {
 			reply.send({'statusCode': 500, 'message': e.message, 'data': {}})
 			return
@@ -141,6 +141,71 @@ class UserServiceProviderController {
 		try {
 			userServiceProvider = await UserServiceProvider.create(params)
 			reply.send({'statusCode': 500, 'message': 'Successfully assign ' + user.name + ' to ' + serviceProvider.name, 'data': {}})
+		} catch(e) {
+			reply.send({'statusCode': 500, 'message': e.message, 'data': {}})
+		}
+	}
+
+	async changeUserServiceProvider (req, reply) {
+		const request = req.body
+		if (!request) {
+			reply.send({'statusCode': 500, 'message': 'Body empty', 'data': {}})
+			return
+		}
+
+		if (!request.user_id || !request.service_provider_id) {
+			reply.send({'statusCode': 500, 'message': 'User and Service Provider is needed', 'data': {}})
+			return
+		}
+
+		try {
+			var user = await Users.findById(request.user_id)
+		} catch(e) {
+			reply.send({'statusCode': 500, 'message': e.message, 'data': {}})
+			return
+		}
+
+		if (user == null) {
+			reply.send({'statusCode': 500, 'message': 'User not exist', 'data': {}})
+			return
+		}
+
+		try {
+			var serviceProvider = await ServiceProvider.findById(request.service_provider_id)
+		} catch(e) {
+			reply.send({'statusCode': 500, 'message': e.message, 'data': {}})
+			return
+		}
+
+		if (serviceProvider == null) {
+			reply.send({'statusCode': 500, 'message': 'Service Provider not exist', 'data': {}})
+			return
+		}
+
+		var params = {
+			user_id: user._id,
+			service_provider_id: serviceProvider._id
+		}
+
+		try {
+			var userServiceProvider = await UserServiceProvider.findOne({user_id: params.user_id})
+		} catch(e) {
+			reply.send({'statusCode': 500, 'message': e.message, 'data': {}})
+			return
+		}
+
+		if (userServiceProvider != null) {
+			try {
+				userServiceProvider = await UserServiceProvider.findByIdAndRemove(userServiceProvider._id)
+			} catch(e) {
+				reply.send({'statusCode': 500, 'message': e.message, 'data': {}})
+				return
+			}
+		}
+
+		try {
+			userServiceProvider = await UserServiceProvider.create(params)
+			reply.send({'statusCode': 200, 'message': 'Successfully assign ' + user.name + ' to ' + serviceProvider.name, 'data': {}})
 		} catch(e) {
 			reply.send({'statusCode': 500, 'message': e.message, 'data': {}})
 		}
