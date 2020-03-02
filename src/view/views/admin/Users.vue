@@ -44,7 +44,6 @@
 			        					<td>
 			        						<button class="btn btn-sm btn-primary" title="Update User" data-toggle="modal" data-target="#add-modal" @click="modalUpdateUser(user)" style="margin-right: 5px"><i class="fa fa-check-square"></i></button>
 			        						<button class="btn btn-sm btn-danger" title="Delete User" @click="deleteUser(user._id)"><i class="fa fa-trash"></i></button>
-			        						<button class="btn btn-sm btn-info" title="Change Service Provider" @click="modalChangeServiceProvider(user)"><i class="fas fa-cubes"></i></button>
 			        					</td>
 			        				</tr>
 			        			</tbody>
@@ -82,13 +81,6 @@
               		<div class="form-group">
               			<label>Email</label>
               			<input type="email" v-model="search.email" class="form-control" placeholder="Email">
-              		</div>
-              		<div class="form-group">
-              			<label>Role</label>
-              			<select class="form-control" v-model="search.role">
-              				<option value="">All</option>
-              				<option v-for="(role, index) in roles" :value="index">{{role}}</option>
-              			</select>
               		</div>
               	</div>
               </div>
@@ -131,12 +123,6 @@
               			<input type="email" v-model="input.email" class="form-control" placeholder="Email">
               		</div>
               		<div class="form-group">
-              			<label>Role</label>
-              			<select class="form-control" v-model="input.role">
-              				<option v-for="(role, index) in roles" :value="index">{{role}}</option>
-              			</select>
-              		</div>
-              		<div class="form-group">
               			<label>Password</label>
               			<input type="password" v-model="input.password" class="form-control" placeholder="Password">
               		</div>
@@ -147,38 +133,6 @@
               <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
               <button v-if="isCreate" type="button" class="btn btn-primary" @click="addUser"><i class="fa fa-plus"></i> Add User</button>
               <button v-else type="button" class="btn btn-primary" @click="updateUser"><i class="fa fa-plus"></i> Update User</button>
-            </div>
-          </div>
-        </div>
-      </div>
-      <!-- End Modal -->
-
-	    <!-- Modal -->
-	    <div class="modal fade" id="service-provider-modal">
-        <div class="modal-dialog">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h4 class="modal-title">Change Service Provider</h4>
-              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-              </button>
-            </div>
-            <div class="modal-body">
-              <div class="row">
-              	<div class="col-lg-12">
-              		<div class="form-group">
-              			<label>Service Provider</label>
-              			<select class="form-control" v-model="serviceProvider.service_provider_id">
-              				<option value="">None</option>
-              				<option v-for="service in listServiceProvider" :value="service._id">{{service.name}}</option>
-              			</select>
-              		</div>
-              	</div>
-              </div>
-            </div>
-            <div class="modal-footer justify-content-between">
-              <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-              <button type="button" class="btn btn-primary" @click="updateServiceProvider"><i class="fa fa-plus"></i> Update</button>
             </div>
           </div>
         </div>
@@ -200,26 +154,18 @@
 		data() {
 			return {
 				listUser: [],
-				roles: [],
-				listServiceProvider: [],
 				isCreate: true,
 				userId: '',
 				input: {
 					username: '',
 					name: '',
 					email: '',
-					role: 0,
 					password: ''
 				},
 				search: {
 					username: '',
 					name: '',
 					email: '',
-					role: ''
-				},
-				serviceProvider: {
-					service_provider_id: '',
-					user_id: ''
 				},
 				pagination: {
 					response: null,
@@ -230,7 +176,7 @@
 		},
 		methods: {
 			getListUser: function() {
-				this.$http.get('api/administrator/user' + '?page='+this.pagination.page+'&perPage='+this.pagination.per_page+'&'+jQuery.param( this.search )).then((response) => {
+				this.$http.get('api/admin/user' + '?page='+this.pagination.page+'&perPage='+this.pagination.per_page+'&'+jQuery.param( this.search )).then((response) => {
           var data = response.data
           var status = data.statusCode
           if (status == 200) {
@@ -252,19 +198,8 @@
           }
         })
 			},
-			getListServiceProvider: function() {
-				this.$http.get('api/administrator/service-provider/all').then((response) => {
-          var data = response.data
-          var status = data.statusCode
-          if (status == 200) {
-          	this.listServiceProvider = data.data
-          } else {
-            swal('Warning', data.message, 'warning')
-          }
-        })
-			},
 			addUser: function() {
-				this.$http.post('api/administrator/user', this.input).then((response) => {
+				this.$http.post('api/admin/user', this.input).then((response) => {
           var data = response.data
           var status = data.statusCode
           if (status == 200) {
@@ -277,7 +212,7 @@
         })
 			},
 			updateUser: function() {
-				this.$http.put('api/administrator/user/'+this.userId, this.input).then((response) => {
+				this.$http.put('api/admin/user/'+this.userId, this.input).then((response) => {
           var data = response.data
           var status = data.statusCode
           if (status == 200) {
@@ -299,7 +234,7 @@
 					dangerMode: true
 				}).then((willDelete) => {
 					if (willDelete) {
-						this.$http.delete('api/administrator/user/'+this.userId).then((response) => {
+						this.$http.delete('api/admin/user/'+this.userId).then((response) => {
 		          var data = response.data
 		          var status = data.statusCode
 		          if (status == 200) {
@@ -321,7 +256,6 @@
 				this.input.username = ''
 				this.input.name = ''
 				this.input.email = ''
-				this.input.role = 0
 				this.input.password = ''
 			},
 			setIsCreate: function(isCreate) {
@@ -339,49 +273,16 @@
 				this.input.username = user.username
 				this.input.name = user.name
 				this.input.email = user.email
-				this.input.role = user.roles
 			},
 			getPaginationData: function(data) {
 				this.pagination.page = data.page
 				this.pagination.perPage = data.perPage
 				this.getListUser()
-			},
-			modalChangeServiceProvider: function(user) {
-				this.$http.get('api/administrator/user-service-provider/user/' + user._id).then((response) => {
-          var data = response.data
-          var status = data.statusCode
-          if (status == 200) {
-          	var responseData = data.data
-          	if (responseData !== null) {
-          		this.serviceProvider.service_provider_id = responseData.service_provider_id._id
-          	} 
-
-        		this.serviceProvider.user_id = user._id
-          	$('#service-provider-modal').modal('show')
-          } else {
-            swal('Warning', data.message, 'warning')
-          }
-        })
-			},
-			updateServiceProvider: function() {
-				this.$http.post('api/administrator/user-service-provider/change', this.serviceProvider).then((response) => {
-          var data = response.data
-          var status = data.statusCode
-          if (status == 200) {
-            $('#service-provider-modal').modal("hide")
-            swal('Success', data.message, 'success')
-            this.serviceProvider.service_provider_id = null
-            this.serviceProvider.user_id = null
-          } else {
-            swal('Warning', data.message, 'warning')
-          }
-        })
 			}
 		},
 		mounted() {
 			this.getListUser()
 			this.getListRoles()
-			this.getListServiceProvider()
 		}
 	};
 </script>

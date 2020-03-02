@@ -376,6 +376,9 @@ class UserController {
 	async listUserAdmin (req, reply) {
 		var page = req.query && req.query.page ? req.query.page : 1
 		var perPage = req.query && req.query.perPage ? req.query.perPage : 10
+		var username = req.query && req.query.username ? req.query.username : null
+		var name = req.query && req.query.name ? req.query.name : null
+		var email = req.query && req.query.email ? req.query.email : null
 
 		const options = {
 			page: page,
@@ -399,8 +402,23 @@ class UserController {
 			listUserId.push(element.user_id)
 		});
 
+		var condition = {}
+		if (username !== null) {
+			condition.username = username
+		}
+
+		if (name !== null) {
+			condition.name = name
+		}
+
+		if (email !== null) {
+			condition.email = email
+		}
+		
+		condition._id = { $in: listUserId }
+
 		try {
-			const user = await Users.paginate({ _id: { $in: listUserId } }, options)
+			const user = await Users.paginate(condition, options)
 			reply.send({'statusCode': 200, 'message': '', 'data': user})
 		} catch(e) {
 			reply.send({'statusCode': 500, 'message': e.message, 'data': {}})

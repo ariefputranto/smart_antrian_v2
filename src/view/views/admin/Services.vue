@@ -1,7 +1,7 @@
 <template>
     <div>
     	<!-- Content Header (Page header) -->
-	    <breadcrumb :lists="[{url: '/', name: 'Home'}, {url: '/service-provider', name: 'Service Provider'}]"/>
+	    <breadcrumb :lists="[{url: '/', name: 'Home'}, {url: '/services', name: 'Services'}]"/>
 	    <!-- /.content-header -->
 
 	    <!-- Main content -->
@@ -11,14 +11,14 @@
 	        	<div class="col-lg-12">
 	        		<div class="card">
 	              <div class="card-header">
-	                <h3 class="card-title">Service Provider</h3>
+	                <h3 class="card-title">Services</h3>
 	                <div class="card-tools">
 	                  <ul class="nav nav-pills ml-auto">
 	                    <li class="nav-item">
 	                      <a class="nav-link" href="#" data-toggle="modal" data-target="#search-modal"><i class="fa fa-search"></i> Search</a>
 	                    </li>
 	                    <li class="nav-item">
-	                      <a class="nav-link" href="#" data-toggle="modal" data-target="#add-modal" @click="setIsCreate(true)"><i class="fa fa-plus"></i> Add Service Provider</a>
+	                      <a class="nav-link" href="#" data-toggle="modal" data-target="#add-modal" @click="setIsCreate(true)"><i class="fa fa-plus"></i> Add Service</a>
 	                    </li>
 	                  </ul>
 	                </div>
@@ -30,20 +30,20 @@
 			        				<tr>
 			        					<th>Name</th>
 			        					<th>Description</th>
-			        					<th>Type</th>
-			        					<th>Icon</th>
+			        					<th>Number of Loket</th>
+			        					<th>Code</th>
 			        					<th>Action</th>
 			        				</tr>
 			        			</thead>
 			        			<tbody>
-			        				<tr v-for="service in listServiceProvider">
+			        				<tr v-for="service in listService">
 			        					<td>{{ service.name }}</td>
 			        					<td>{{ service.description }}</td>
-			        					<td>{{ service.type }}</td>
-			        					<td>{{ service.icon }}</td>
+			        					<td>{{ service.number_loket }}</td>
+			        					<td>{{ service.code }}</td>
 			        					<td>
-			        						<button class="btn btn-sm btn-primary" title="Update Service Provider" data-toggle="modal" data-target="#add-modal" @click="modalUpdateServiceProvider(service)" style="margin-right: 5px"><i class="fa fa-check-square"></i></button>
-			        						<button class="btn btn-sm btn-danger" title="Delete Service Provider" @click="deleteServiceProvider(service._id)"><i class="fa fa-trash"></i></button>
+			        						<button class="btn btn-sm btn-primary" title="Update Service" data-toggle="modal" data-target="#add-modal" @click="modalUpdateService(service)" style="margin-right: 5px"><i class="fa fa-check-square"></i></button>
+			        						<button class="btn btn-sm btn-danger" title="Delete Service" @click="deleteService(service._id)"><i class="fa fa-trash"></i></button>
 			        					</td>
 			        				</tr>
 			        			</tbody>
@@ -62,7 +62,7 @@
         <div class="modal-dialog">
           <div class="modal-content">
             <div class="modal-header">
-              <h4 class="modal-title">Search Service Providers</h4>
+              <h4 class="modal-title">Search Service</h4>
               <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
               </button>
@@ -74,20 +74,12 @@
               			<label>Name</label>
               			<input type="text" v-model="search.name" class="form-control" placeholder="Name">
               		</div>
-              		<div class="form-group">
-              			<label>Description</label>
-              			<input type="text" v-model="search.description" class="form-control" placeholder="Description">
-              		</div>
-              		<div class="form-group">
-              			<label>Type</label>
-              			<input type="text" v-model="search.type" class="form-control" placeholder="Type">
-              		</div>
               	</div>
               </div>
             </div>
             <div class="modal-footer justify-content-between">
               <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-              <button type="button" class="btn btn-primary" @click="searchServiceProvider"><i class="fa fa-search"></i> Search</button>
+              <button type="button" class="btn btn-primary" @click="searchService"><i class="fa fa-search"></i> Search</button>
             </div>
           </div>
         </div>
@@ -100,8 +92,8 @@
           <div class="modal-content">
             <div class="modal-header">
               <h4 class="modal-title">
-              	<span v-if="isCreate">Add Service Provider</span>
-              	<span v-else>Update Service Provider</span>
+              	<span v-if="isCreate">Add Service</span>
+              	<span v-else>Update Service</span>
 	            </h4>
               <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
@@ -119,24 +111,20 @@
               			<input type="text" v-model="input.description" class="form-control" placeholder="Description">
               		</div>
               		<div class="form-group">
-              			<label>Type</label>
-              			<input type="text" v-model="input.type" class="form-control" placeholder="Type">
+              			<label>Number of Loket</label>
+              			<input type="number" v-model="input.number_loket" class="form-control" placeholder="Number of Loket">
               		</div>
               		<div class="form-group">
-              			<label>Icon</label>
-              			<input type="file" ref="file" @change="fileChanged" class="form-control">
-              		</div>
-              		<div class="form-group" v-if="input.icon.length > 0">
-              			<label style="display: block;">Preview</label>
-              			<img :src="imagePath + input.icon" style="max-width: 300px;margin-left: auto;margin-right: auto;display: block;">
+              			<label>Code</label>
+              			<input type="text" v-model="input.code" class="form-control" placeholder="Code">
               		</div>
               	</div>
               </div>
             </div>
             <div class="modal-footer justify-content-between">
               <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-              <button v-if="isCreate" type="button" class="btn btn-primary" @click="addServiceProvider"><i class="fa fa-plus"></i> Add Service Provider</button>
-              <button v-else type="button" class="btn btn-primary" @click="updateServiceProvider"><i class="fa fa-plus"></i> Update Service Provider</button>
+              <button v-if="isCreate" type="button" class="btn btn-primary" @click="addService"><i class="fa fa-plus"></i> Add Service</button>
+              <button v-else type="button" class="btn btn-primary" @click="updateService"><i class="fa fa-plus"></i> Update Service</button>
             </div>
           </div>
         </div>
@@ -157,20 +145,17 @@
 		},
 		data() {
 			return {
-				listServiceProvider: [],
+				listService: [],
 				isCreate: true,
-				serviceProviderId: '',
-				imagePath: 'public/uploads/',
+				serviceId: '',
 				input: {
 					name: '',
 					description: '',
-					type: '',
-					icon: ''
+					number_loket: '',
+					code: ''
 				},
 				search: {
 					name: '',
-					description: '',
-					type: ''
 				},
 				pagination: {
 					response: null,
@@ -180,73 +165,61 @@
 			}
 		},
 		methods: {
-			getListServiceProvider: function() {
-				this.$http.get('api/administrator/service-provider' + '?page='+this.pagination.page+'&perPage='+this.pagination.per_page+'&'+jQuery.param( this.search )).then((response) => {
+			getListService: function() {
+				this.$http.get('api/admin/services' + '?page='+this.pagination.page+'&perPage='+this.pagination.per_page+'&'+jQuery.param( this.search )).then((response) => {
           var data = response.data
           var status = data.statusCode
           if (status == 200) {
-          	this.listServiceProvider = data.data.docs
+          	this.listService = data.data.docs
           	this.pagination.response = data
           } else {
             swal('Warning', data.message, 'warning')
           }
         })
 			},
-			addServiceProvider: function() {
-				let formData = new FormData()
-				formData.append('name', this.input.name)
-				formData.append('description', this.input.description)
-				formData.append('type', this.input.type)
-				formData.append('icon', this.input.icon)
-
-				this.$http.post('api/administrator/service-provider', formData).then((response) => {
+			addService: function() {
+				this.$http.post('api/admin/services', this.input).then((response) => {
           var data = response.data
           var status = data.statusCode
           if (status == 200) {
             $('#add-modal').modal("hide")
             swal('Success', data.message, 'success')
-            this.getListServiceProvider()
+            this.getListService()
           } else {
             swal('Warning', data.message, 'warning')
           }
         })
 			},
-			updateServiceProvider: function() {
-				let formData = new FormData()
-				formData.append('name', this.input.name)
-				formData.append('description', this.input.description)
-				formData.append('type', this.input.type)
-				formData.append('icon', this.input.icon)
-
-				this.$http.put('api/administrator/service-provider/'+this.serviceProviderId, formData).then((response) => {
+			updateService: function() {
+				this.$http.put('api/admin/services/'+this.serviceId, this.input).then((response) => {
           var data = response.data
           var status = data.statusCode
           if (status == 200) {
             $('#add-modal').modal("hide")
             swal('Success', data.message, 'success')
-            this.getListServiceProvider()
+            this.getListService()
           } else {
             swal('Warning', data.message, 'warning')
           }
         })
 			},
-			deleteServiceProvider: function(serviceProviderId) {
-				this.serviceProviderId = serviceProviderId
+			deleteService: function(serviceId) {
+				this.serviceId = serviceId
 				swal({
 					title: "Warning!",
-					text: "Do you want to delete this service provider?",
+					text: "Do you want to delete this service?",
 					icon: "warning",
 					buttons: true,
 					dangerMode: true
 				}).then((willDelete) => {
 					if (willDelete) {
-						this.$http.delete('api/administrator/service-provider/'+this.serviceProviderId).then((response) => {
+						this.$http.delete('api/admin/services/'+this.serviceId).then((response) => {
 		          var data = response.data
 		          var status = data.statusCode
 		          if (status == 200) {
 		            $('#add-modal').modal("hide")
 		            swal('Success', data.message, 'success')
-		            this.getListServiceProvider()
+		            this.getListService()
 		          } else {
 		            swal('Warning', data.message, 'warning')
 		          }
@@ -254,16 +227,15 @@
 					}
 				})
 			},
-			searchServiceProvider: function() {
+			searchService: function() {
 				$('#search-modal').modal("hide")
-				this.getListServiceProvider()
+				this.getListService()
 			},
 			clearField: function() {
 				this.input.name = ''
 				this.input.description = ''
-				this.input.type = ''
-				this.input.icon = ''
-				this.$refs.file.value = ''
+				this.input.number_loket = ''
+				this.input.code = ''
 			},
 			setIsCreate: function(isCreate) {
 				if (isCreate) {
@@ -274,25 +246,23 @@
 					this.clearField()
 				}
 			},
-			modalUpdateServiceProvider: function(serviceProvider) {
+			modalUpdateService: function(service) {
 				this.setIsCreate(false)
-				this.serviceProviderId = serviceProvider._id
-				this.input.name = serviceProvider.name
-				this.input.description = serviceProvider.description
-				this.input.type = serviceProvider.type
-				this.input.icon = typeof serviceProvider.icon == 'undefined' ? '' : serviceProvider.icon
+				this.serviceId = service._id
+				this.input.name = service.name
+				this.input.description = service.description
+				this.input.number_loket = service.number_loket
+				this.input.code = service.code
 			},
 			getPaginationData: function(data) {
 				this.pagination.page = data.page
 				this.pagination.perPage = data.perPage
-				this.getListServiceProvider()
-			},
-			fileChanged: function() {
-				this.input.icon = this.$refs.file.files[0]
+				this.getListService()
 			}
 		},
 		mounted() {
-			this.getListServiceProvider()
+			this.getListService()
+			this.getListRoles()
 		}
 	};
 </script>

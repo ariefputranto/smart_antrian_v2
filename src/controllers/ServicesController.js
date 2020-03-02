@@ -41,6 +41,11 @@ class ServicesController {
 			return
 		}
 
+		if (request.number_loket <= 0) {
+			reply.send({'statusCode': 500, 'message': 'Number loket must be greater than 0', 'data': {}})
+			return
+		}
+
 		var data = {
 			user_id: req.user._id,
 			service_provider_id: req.user.service_provider,
@@ -109,6 +114,11 @@ class ServicesController {
 		}
 
 		if (request.number_loket) {
+			if (request.number_loket <= 0) {
+				reply.send({'statusCode': 500, 'message': 'Number loket must be greater than 0', 'data': {}})
+				return
+			}
+			
 			param.number_loket = request.number_loket
 		}
 
