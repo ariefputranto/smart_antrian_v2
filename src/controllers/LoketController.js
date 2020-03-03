@@ -90,7 +90,7 @@ class LoketController {
 			time: new Date()
 		}
 
-		if (request.inner_distance > request.outer_distance) {
+		if (parseFloat(request.inner_distance) > parseFloat(request.outer_distance)) {
 			reply.send({'statusCode': 500, 'message': "Inner distance must be lower or equal to outer distance", 'data': {}})
 			return
 		}
@@ -159,6 +159,11 @@ class LoketController {
 	    	user_id: req.user._id,
 			service_provider_id: req.user.service_provider
 	    }
+
+		if (parseFloat(request.inner_distance) > parseFloat(request.outer_distance)) {
+			reply.send({'statusCode': 500, 'message': "Inner distance must be lower or equal to outer distance", 'data': {}})
+			return
+		}
 
 		if (request.service_id) {
 			try {
