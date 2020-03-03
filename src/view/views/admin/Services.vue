@@ -262,7 +262,6 @@
 		},
 		mounted() {
 			this.getListService()
-			this.getListRoles()
 		}
 	};
 </script>

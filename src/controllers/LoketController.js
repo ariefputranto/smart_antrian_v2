@@ -7,6 +7,9 @@ class LoketController {
 	async listLoket (req, reply) {
 		var page = req.query && req.query.page ? req.query.page : 1
 		var perPage = req.query && req.query.perPage ? req.query.perPage : 10
+		var name = req.query && req.query.name ? req.query.name : null
+		var service = req.query && req.query.service ? req.query.service : null
+		var assign_user = req.query && req.query.assign_user ? req.query.assign_user : null
 
 		const options = {
 			page: page,
@@ -14,8 +17,21 @@ class LoketController {
 			populate: ['service_id', 'assign_user_id']
 		}
 
+		var condition = {service_provider_id: req.user.service_provider}
+		if (name !== null) {
+			condition.name = name
+		}
+
+		if (service !== null) {
+			condition.service_id = service
+		}
+
+		if (assign_user !== null) {
+			condition.assign_user_id = assign_user
+		}
+
 		try {
-			const loket = await Loket.paginate({service_provider_id: req.user.service_provider}, options)
+			const loket = await Loket.paginate(condition, options)
 			reply.send({'statusCode': 200, 'message': '', 'data': loket})
 		} catch(e) {
 			reply.send({'statusCode': 500, 'message': e.message, 'data': {}})
@@ -72,6 +88,11 @@ class LoketController {
 			latitude: request.latitude,
 			longitude: request.longitude,
 			time: new Date()
+		}
+
+		if (request.inner_distance > request.outer_distance) {
+			reply.send({'statusCode': 500, 'message': "Inner distance must be lower or equal to outer distance", 'data': {}})
+			return
 		}
 
 		if (request.inner_distance) {
@@ -179,11 +200,11 @@ class LoketController {
 		}
 
 		if (request.inner_distance) {
-			data.inner_distance = request.inner_distance
+			param.inner_distance = request.inner_distance
 		}
 
 		if (request.outer_distance) {
-			data.outer_distance = request.outer_distance
+			param.outer_distance = request.outer_distance
 		}
 
 		if (request.assign_user_id) {

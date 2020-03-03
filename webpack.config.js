@@ -35,6 +35,29 @@ module.exports = {
         include: path.join(__dirname, 'src/view'),
         // Transform it with vue
         loader: 'vue-loader'
+      },
+      {
+        // this will apply to both plain `.css` files
+        test: /\.css$/,
+        // Transform it with vue
+        use: [
+          'vue-style-loader',
+          'css-loader'
+        ]
+      },
+      {
+        // this will apply to asset
+        test: /\.(png|jpe?g|gif)$/i,
+        use: [
+          {
+            loader: 'file-loader',
+            options: {
+              outputPath: '../img',
+              publicPath: 'public/img',
+              name: '[name].[ext]',
+            },
+          },
+        ],
       }
     ]
   },

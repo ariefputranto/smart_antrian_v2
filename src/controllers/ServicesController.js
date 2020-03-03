@@ -5,6 +5,12 @@ class ServicesController {
 	async listServices (req, reply) {
 		var page = req.query && req.query.page ? req.query.page : 1
 		var perPage = req.query && req.query.perPage ? req.query.perPage : 10
+		var name = req.query && req.query.name ? req.query.name : null
+
+		var condition = {service_provider_id: req.user.service_provider}
+		if (name !== null) {
+			condition.name = name
+		}
 
 		const options = {
 			page: page,
@@ -12,7 +18,18 @@ class ServicesController {
 		}
 
 		try {
-			const services = await Services.paginate({service_provider_id: req.user.service_provider}, options)
+			const services = await Services.paginate(condition, options)
+			reply.send({'statusCode': 200, 'message': '', 'data': services})
+		} catch(e) {
+			reply.send({'statusCode': 500, 'message': e.message, 'data': {}})
+		}
+	}
+
+	async listAllServices (req, reply) {
+		var condition = {service_provider_id: req.user.service_provider}
+
+		try {
+			const services = await Services.find(condition)
 			reply.send({'statusCode': 200, 'message': '', 'data': services})
 		} catch(e) {
 			reply.send({'statusCode': 500, 'message': e.message, 'data': {}})

@@ -23,6 +23,7 @@ async function apiRoutes(fastify, opts) {
 
 	// Users
 	fastify.get('/user', UserController.listUserAdmin)
+	fastify.get('/user/all', UserController.listAllUserAdmin)
 	fastify.post('/user', UserController.addUserAdmin)
 	fastify.get('/user/:id', UserController.singleUserAdmin)
 	fastify.put('/user/:id', UserController.updateUserAdmin)
@@ -30,6 +31,7 @@ async function apiRoutes(fastify, opts) {
 
 	// Services
 	fastify.get('/services', ServicesController.listServices)
+	fastify.get('/services/all', ServicesController.listAllServices)
 	fastify.get('/services/:id', ServicesController.singleServices)
 	fastify.post('/services', ServicesController.addServices)
 	fastify.put('/services/:id', ServicesController.updateServices)

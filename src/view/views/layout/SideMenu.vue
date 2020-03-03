@@ -27,6 +27,12 @@
           <p> Services </p>
         </router-link>
       </li>
+      <li class="nav-item">
+        <router-link to="/loket" class="nav-link" v-bind:class="{'active': $route.path === '/loket'}">
+          <i class="nav-icon fas fa-door-open"></i>
+          <p> Loket </p>
+        </router-link>
+      </li>
     </section>
   </ul>
 </template>

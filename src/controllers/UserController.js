@@ -425,6 +425,32 @@ class UserController {
 		}
 	}
 
+	async listAllUserAdmin (req, reply) {
+		try {
+			var userServiceProvider = await UserServiceProvider.find({ service_provider_id: req.user.service_provider })
+		} catch(e) {
+			reply.send({'statusCode': 500, 'message': e.message, 'data': {}})
+			return
+		}
+
+		if (userServiceProvider.length == 0) {
+			reply.send({'statusCode': 500, 'message': 'User Service Provider not found!', 'data': {}})
+			return
+		}
+
+		var listUserId = [];
+		userServiceProvider.forEach( function(element, index) {
+			listUserId.push(element.user_id)
+		}); 
+
+		try {
+			const user = await Users.find({ _id: { $in: listUserId } })
+			reply.send({'statusCode': 200, 'message': '', 'data': user})
+		} catch(e) {
+			reply.send({'statusCode': 500, 'message': e.message, 'data': {}})
+		}
+	}
+
 	async singleUserAdmin (req, reply) {
 		try {
 			var userServiceProvider = await UserServiceProvider.findOne({ service_provider_id: req.user.service_provider, user_id: req.params.id })
