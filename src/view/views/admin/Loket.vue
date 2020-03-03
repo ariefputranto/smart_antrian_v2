@@ -33,8 +33,8 @@
 			        					<th>Token Expire</th>
 			        					<th>Latitude</th>
 			        					<th>Longitude</th>
-			        					<th>Outer Range</th>
 			        					<th>Inner Range</th>
+			        					<th>Outer Range</th>
 			        					<th>Assigned User</th>
 			        					<th>Action</th>
 			        				</tr>
@@ -46,8 +46,8 @@
 			        					<td>{{ loket.token_expiration_time }}</td>
 			        					<td>{{ loket.latitude }}</td>
 			        					<td>{{ loket.longitude }}</td>
-			        					<td>{{ loket.outer_distance }} Km</td>
 			        					<td>{{ loket.inner_distance }} Km</td>
+			        					<td>{{ loket.outer_distance }} Km</td>
 			        					<td>{{ typeof loket.assign_user_id !== 'undefined' && loket.assign_user_id !== null ? loket.assign_user_id.name : '-' }}</td>
 			        					<td>
 			        						<button class="btn btn-sm btn-primary" title="Update Loket" data-toggle="modal" data-target="#add-modal" @click="modalUpdateLoket(loket)" style="margin-right: 5px"><i class="fa fa-check-square"></i></button>

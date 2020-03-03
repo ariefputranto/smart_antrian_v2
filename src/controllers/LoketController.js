@@ -216,6 +216,8 @@ class LoketController {
 			}
 
 			param.assign_user_id = user._id
+		} else {
+			param.assign_user_id = null
 		}
 
 		try {
