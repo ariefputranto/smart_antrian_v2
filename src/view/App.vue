@@ -173,6 +173,11 @@
           return false
         }
 
+        if (response.data.message == "You are not allowed!") {
+          this.$router.push('/')
+          return false
+        }
+
         return response
       }, (error) => {
         // Any status codes that falls outside the range of 2xx cause this function to trigger

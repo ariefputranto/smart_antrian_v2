@@ -34,6 +34,26 @@
         </router-link>
       </li>
     </section>
+    <section v-if="role == 'User'">
+      <li class="nav-item">
+        <router-link to="/user-admin" class="nav-link" v-bind:class="{'active': $route.path === '/users-admin'}">
+          <i class="nav-icon fas fa-users"></i>
+          <p> Loket </p>
+        </router-link>
+      </li>
+      <li class="nav-item">
+        <router-link to="/services" class="nav-link" v-bind:class="{'active': $route.path === '/services'}">
+          <i class="nav-icon fas fa-cube"></i>
+          <p> Monitor </p>
+        </router-link>
+      </li>
+      <li class="nav-item">
+        <router-link to="/loket" class="nav-link" v-bind:class="{'active': $route.path === '/loket'}">
+          <i class="nav-icon fas fa-door-open"></i>
+          <p> Queue </p>
+        </router-link>
+      </li>
+    </section>
   </ul>
 </template>
 

@@ -44,8 +44,8 @@
 			        					<td>{{ loket.name }}</td>
 			        					<td>{{ loket.service_id.name }}</td>
 			        					<td>{{ loket.token_expiration_time }}</td>
-			        					<td>{{ loket.latitude }}</td>
-			        					<td>{{ loket.longitude }}</td>
+			        					<td>{{ Math.round(loket.latitude * 100) / 100 }}</td>
+			        					<td>{{ Math.round(loket.longitude * 100) / 100 }}</td>
 			        					<td>{{ loket.inner_distance }} Km</td>
 			        					<td>{{ loket.outer_distance }} Km</td>
 			        					<td>{{ typeof loket.assign_user_id !== 'undefined' && loket.assign_user_id !== null ? loket.assign_user_id.name : '-' }}</td>
