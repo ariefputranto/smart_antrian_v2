@@ -1,7 +1,7 @@
 <template>
     <div>
     	<!-- Content Header (Page header) -->
-	    <breadcrumb :lists="[{url: '/', name: 'Home'}, {url: '/loket', name: 'Loket'}]"/>
+	    <breadcrumb :lists="[{url: '/', name: 'Home'}, {url: '/loket-user', name: 'Loket'}]"/>
 	    <!-- /.content-header -->
 
 	    <!-- Main content -->
@@ -54,15 +54,15 @@
 	              <div class="card-body">
 			        		<div class="row">
 			        			<div class="col-lg-12 text-center">
-			        				<h1>A11</h1>
+			        				<h1 style="font-weight: 400;font-size: 70px">A11</h1>
 			        				<p>5 more remaining</p>
 			        			</div>
 			        		</div>
 	              </div>
 
 	              <div class="card-footer clearfix">
-	              	<button type="button" class="btn btn-info"><i class="fas fa-redo-alt"></i></button>
-	              	<button type="button" class="btn btn-success float-right"><i class="fas fa-arrow-right"></i></button>
+	              	<button type="button" class="btn btn-info btn-lg"><i class="fas fa-redo-alt"></i></button>
+	              	<button type="button" class="btn btn-success btn-lg float-right"><i class="fas fa-arrow-right"></i></button>
 	              </div>
 	            </div>
 	        	</div>
