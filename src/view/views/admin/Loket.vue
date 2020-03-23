@@ -334,6 +334,8 @@
 
 				this.map.center = [-7.280547, 112.797532]
 				this.map.markerLatLng = [-7.280547, 112.797532]
+
+				console.log(this.map)
 			},
 			setIsCreate: function(isCreate) {
 				if (isCreate) {

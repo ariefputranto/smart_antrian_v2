@@ -38,6 +38,49 @@ class LoketController {
 		}
 	}
 
+	async listLoketUser (req, reply) {
+		var page = req.query && req.query.page ? req.query.page : 1
+		var perPage = req.query && req.query.perPage ? req.query.perPage : 10
+		var name = req.query && req.query.name ? req.query.name : null
+		var service = req.query && req.query.service ? req.query.service : null
+		var assign_user = req.query && req.query.assign_user ? req.query.assign_user : null
+
+		var condition = {service_provider_id: req.user.service_provider}
+		if (name !== null) {
+			condition.name = name
+		}
+
+		if (service !== null) {
+			condition.service_id = service
+		}
+
+		if (assign_user !== null) {
+			condition.assign_user_id = assign_user
+		}
+
+		try {
+			const loket = await Loket.find(condition).populate(['service_id', 'assign_user_id'])
+			reply.send({'statusCode': 200, 'message': '', 'data': loket})
+		} catch(e) {
+			reply.send({'statusCode': 500, 'message': e.message, 'data': {}})
+		}
+	}
+
+	async checkAssignedUser (req, reply) {
+		var params = {
+			service_provider_id: req.user.service_provider,
+			assign_user_id: req.user._id
+		}
+
+		try {
+			var loket = await Loket.findOne(params).populate(['service_id', 'assign_user_id'])
+			reply.send({'statusCode': 200, 'message': '', 'data': loket})
+		} catch(e) {
+			reply.send({'statusCode': 500, 'message': e.message, 'data': {}})
+			return
+		}
+	}
+
 	async singleLoket (req, reply) {
 		try {
 			const id = req.params.id
@@ -87,6 +130,7 @@ class LoketController {
 			token_expiration_time: request.token_expiration_time,
 			latitude: request.latitude,
 			longitude: request.longitude,
+			assign_user_id: null,
 			time: new Date()
 		}
 
