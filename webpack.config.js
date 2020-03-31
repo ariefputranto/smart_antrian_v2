@@ -32,7 +32,7 @@ module.exports = {
         // Ask webpack to check: If this file ends with .vue, then apply some transforms
         test: /\.vue$/,
         // directory
-        include: path.join(__dirname, 'src/view'),
+        // include: path.join(__dirname, 'src/view'),
         // Transform it with vue
         loader: 'vue-loader'
       },

@@ -5,67 +5,64 @@
 	    <!-- /.content-header -->
 
 	    <!-- Main content -->
-	    <section class="content">
-	      <div class="container">
-	        <div class="row">
-	        	<div class="col-lg-12">
-	        		<div class="card">
-	              <div class="card-header">
-	                <h3 class="card-title">Loket</h3>
-	                <div class="card-tools">
-	                  <ul class="nav nav-pills ml-auto">
-	                    <li class="nav-item">
-	                      <a class="nav-link" href="#" data-toggle="modal" data-target="#search-modal"><i class="fa fa-search"></i> Search</a>
-	                    </li>
-	                    <li class="nav-item">
-	                      <a class="nav-link" href="#" data-toggle="modal" data-target="#add-modal" @click="setIsCreate(true)"><i class="fa fa-plus"></i> Add Loket</a>
-	                    </li>
-	                  </ul>
-	                </div>
-	              </div>
-	              
-	              <div class="card-body">
-			        		<table class="table table-stripped table-bordered">
-			        			<thead>
-			        				<tr>
-			        					<th>Name</th>
-			        					<th>Service</th>
-			        					<th>Token Expire</th>
-			        					<th>Latitude</th>
-			        					<th>Longitude</th>
-			        					<th>Inner Range</th>
-			        					<th>Outer Range</th>
-			        					<th>Assigned User</th>
-			        					<th>Action</th>
-			        				</tr>
-			        			</thead>
-			        		</table>
-	              </div>
-	            </div>
-	        	</div>
-	        </div>
-	      </div>
-	    </section>
+	  	<fullscreen ref="fullscreen" :fullscreen.sync="fullscreen" style="background: #f4f6f9;padding-top: 50px">
+		    <section class="content">
+		      <div class="container">
+		        <div class="row">
+		        	<div class="col-lg-12">
+		        		<div class="card">
+		              <div class="card-body" style="text-align: center;">
+				        		<h3>Loket A</h3>
+		              </div>
+		            </div>
+		        		<div class="card">
+		              <div class="card-body" style="text-align: center;">
+				        		<h3>Loket B</h3>
+		              </div>
+		            </div>
+		        		<div class="card">
+		              <div class="card-body" style="text-align: center;">
+				        		<h3>Loket C</h3>
+		              </div>
+		            </div>
+		        	</div>
+		        </div>
+		      </div>
+		    </section>
+      </fullscreen>
+    	<!-- Fullscreen buttom -->
+      <div class="container">
+        <div class="row">
+        	<div class="col-lg-12">
+        		<button type="button" class="btn btn-primary" @click="toggle">Enter Fullscreen</button>
+        	</div>
+        </div>
+      </div>
     </div>
 </template>
 
 <script>
 	import Breadcrumb from '@/components/Breadcrumb.vue'
+	import Fullscreen from "vue-fullscreen/src/component.vue"
 
 	export default {
 		name: "Home",
 		components: {
 			Breadcrumb,
+			Fullscreen,
 		},
 		data() {
 			return {
-				listLoket: []
+				listLoket: [],
 			}
 		},
 		methods: {
 			getListLoket: function() {
 				console.log('test')
-			}
+			},
+			toggle: function() {
+        this.$refs['fullscreen'].toggle()
+      }
 		},
 		mounted() {
 			this.getListLoket()
