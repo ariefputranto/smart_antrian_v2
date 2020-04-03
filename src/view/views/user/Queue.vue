@@ -5,7 +5,7 @@
 	    <!-- /.content-header -->
 
 	    <!-- Main content -->
-	  	<fullscreen ref="fullscreen" :fullscreen.sync="fullscreen" style="background: #f4f6f9;padding-top: 50px">
+	  	<fullscreen ref="fullscreen" style="background: #f4f6f9;padding-top: 50px">
 		    <section class="content">
 		      <div class="container">
 		        <div class="row">

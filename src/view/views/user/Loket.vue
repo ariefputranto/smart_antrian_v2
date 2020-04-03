@@ -54,7 +54,7 @@
 	              <div class="card-body">
 			        		<div class="row">
 			        			<div class="col-lg-12 text-center">
-			        				<h1 style="font-weight: 400;font-size: 70px">A11</h1>
+			        				<h1 style="font-weight: 400;font-size: 70px"> {{ lastCalledNumber }}</h1>
 			        				<p>5 more remaining</p>
 			        			</div>
 			        		</div>
@@ -75,6 +75,10 @@
 <script>
 	import Breadcrumb from '@/components/Breadcrumb.vue'
 
+	// Init ws
+	const host = location.origin.replace(/^http/, 'ws')
+	const ws = new WebSocket(host)
+
 	export default {
 		name: "Home",
 		components: {
@@ -84,7 +88,8 @@
 			return {
 				isAssigned: false,
 				listLoket: [],
-				singleLoket: {}
+				singleLoket: {},
+				lastCalledNumber: ''
 			}
 		},
 		methods: {
@@ -107,6 +112,7 @@
           	if (data.data !== null) {
           		this.isAssigned = true
           		this.singleLoket = data.data
+							this.wsSendTest()
           	} else {
           		this.isAssigned = false
           	}
@@ -114,6 +120,21 @@
             swal('Warning', data.message, 'warning')
           }
         })
+			},
+			wsSendTest: function() {
+				ws.onmessage = msg => {
+					console.log(msg.data)
+					var response = JSON.parse(msg.data)
+					if (typeof response.data.last_call !== 'undefined') {
+						this.lastCalledNumber = response.data.last_call
+						console.log(this.lastCalledNumber)
+					}
+				}
+
+				if (typeof this.singleLoket._id !== 'undefined') {
+					ws.send(JSON.stringify({url: '/queue/last-called', service_id: this.singleLoket.service_id._id}))
+					console.log('test')
+				}
 			}
 		},
 		mounted() {
