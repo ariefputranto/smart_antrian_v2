@@ -39,24 +39,7 @@ class LoketController {
 	}
 
 	async listLoketUser (req, reply) {
-		var page = req.query && req.query.page ? req.query.page : 1
-		var perPage = req.query && req.query.perPage ? req.query.perPage : 10
-		var name = req.query && req.query.name ? req.query.name : null
-		var service = req.query && req.query.service ? req.query.service : null
-		var assign_user = req.query && req.query.assign_user ? req.query.assign_user : null
-
 		var condition = {service_provider_id: req.user.service_provider}
-		if (name !== null) {
-			condition.name = name
-		}
-
-		if (service !== null) {
-			condition.service_id = service
-		}
-
-		if (assign_user !== null) {
-			condition.assign_user_id = assign_user
-		}
 
 		try {
 			const loket = await Loket.find(condition).populate(['service_id', 'assign_user_id'])

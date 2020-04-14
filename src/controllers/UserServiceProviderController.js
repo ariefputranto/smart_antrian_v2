@@ -153,7 +153,7 @@ class UserServiceProviderController {
 			return
 		}
 
-		if (!request.user_id || !request.service_provider_id) {
+		if (!request.user_id) {
 			reply.send({'statusCode': 500, 'message': 'User and Service Provider is needed', 'data': {}})
 			return
 		}
@@ -170,44 +170,58 @@ class UserServiceProviderController {
 			return
 		}
 
-		try {
-			var serviceProvider = await ServiceProvider.findById(request.service_provider_id)
-		} catch(e) {
-			reply.send({'statusCode': 500, 'message': e.message, 'data': {}})
-			return
-		}
-
-		if (serviceProvider == null) {
-			reply.send({'statusCode': 500, 'message': 'Service Provider not exist', 'data': {}})
-			return
-		}
-
-		var params = {
-			user_id: user._id,
-			service_provider_id: serviceProvider._id
-		}
-
-		try {
-			var userServiceProvider = await UserServiceProvider.findOne({user_id: params.user_id})
-		} catch(e) {
-			reply.send({'statusCode': 500, 'message': e.message, 'data': {}})
-			return
-		}
-
-		if (userServiceProvider != null) {
+		// if there was service provider
+		if (request.service_provider_id) {
 			try {
-				userServiceProvider = await UserServiceProvider.findByIdAndRemove(userServiceProvider._id)
+				var serviceProvider = await ServiceProvider.findById(request.service_provider_id)
 			} catch(e) {
 				reply.send({'statusCode': 500, 'message': e.message, 'data': {}})
 				return
 			}
-		}
 
-		try {
-			userServiceProvider = await UserServiceProvider.create(params)
-			reply.send({'statusCode': 200, 'message': 'Successfully assign ' + user.name + ' to ' + serviceProvider.name, 'data': {}})
-		} catch(e) {
-			reply.send({'statusCode': 500, 'message': e.message, 'data': {}})
+			if (serviceProvider == null) {
+				reply.send({'statusCode': 500, 'message': 'Service Provider not exist', 'data': {}})
+				return
+			}
+
+			var params = {
+				user_id: user._id,
+				service_provider_id: serviceProvider._id
+			}
+
+			try {
+				var userServiceProvider = await UserServiceProvider.findOne({user_id: params.user_id})
+			} catch(e) {
+				reply.send({'statusCode': 500, 'message': e.message, 'data': {}})
+				return
+			}
+
+			if (userServiceProvider != null) {
+				try {
+					userServiceProvider = await UserServiceProvider.findByIdAndRemove(userServiceProvider._id)
+				} catch(e) {
+					reply.send({'statusCode': 500, 'message': e.message, 'data': {}})
+					return
+				}
+			}
+
+			try {
+				userServiceProvider = await UserServiceProvider.create(params)
+				reply.send({'statusCode': 200, 'message': 'Successfully assign ' + user.name + ' to ' + serviceProvider.name, 'data': {}})
+			} catch(e) {
+				reply.send({'statusCode': 500, 'message': e.message, 'data': {}})
+			}
+
+		// no service provider
+		} else {
+			try {
+				var userServiceProvider = await UserServiceProvider.deleteOne({user_id: user._id})
+			} catch(e) {
+				reply.send({'statusCode': 500, 'message': e.message, 'data': {}})
+				return
+			}
+
+			reply.send({'statusCode': 200, 'message': 'Successfully unassign ' + user.name, 'data': {}})
 		}
 	}
 

@@ -38,17 +38,25 @@
 	              </div>
 
 	              <div class="card-footer clearfix">
-	              	<button v-if="loket.assign_user_id == null" type="button" class="btn btn-info float-right"><i class="fas fa-door-open"></i> Use</button>
+	              	<button v-if="loket.assign_user_id == null" type="button" class="btn btn-info float-right" @click="assignUser(loket)"><i class="fas fa-door-open"></i> Use</button>
 	              </div>
 	            </div>
 	        	</div>
 	        </div>
+
 	        <!-- If assigned -->
 	        <div class="row" v-else>
 	        	<div class="col-lg-6 offset-lg-3">
 	        		<div class="card">
 	              <div class="card-header">
 	                <h3 class="card-title"><i class="fas fa-user"></i> {{ singleLoket.name }}</h3>
+	                <div class="card-tools">
+	                  <ul class="nav nav-pills ml-auto">
+	                    <li class="nav-item">
+	                      <a class="nav-link" href="#" @click="unAssignUser()"><i class="fas fa-reply"></i> Back</a>
+	                    </li>
+	                  </ul>
+	                </div>
 	              </div>
 	              
 	              <div class="card-body">
@@ -89,12 +97,13 @@
 				isAssigned: false,
 				listLoket: [],
 				singleLoket: {},
-				lastCalledNumber: ''
+				lastCalledNumber: '',
+				currentUser: {}
 			}
 		},
 		methods: {
 			getListLoket: function() {
-				this.$http.get('api/user/loket' + '?'+jQuery.param( this.search )).then((response) => {
+				this.$http.get('api/user/loket').then((response) => {
           var data = response.data
           var status = data.statusCode
           if (status == 200) {
@@ -121,6 +130,57 @@
           }
         })
 			},
+			assignUser: function(loket) {
+				if (loket != null) {
+					var loket_id = loket._id
+					var params = {
+						assign_user_id: this.currentUser._id
+					}
+
+					this.$http.put('api/user/loket/' + loket_id, params).then((response) => {
+	          var data = response.data
+	          var status = data.statusCode
+	          if (status == 200) {
+	            swal('Success', data.message, 'success')
+	            this.init()
+	          } else {
+	            swal('Warning', data.message, 'warning')
+	          }
+	        })
+				}
+			},
+			unAssignUser: function() {
+				if (typeof this.singleLoket._id !== 'undefined') {
+					var loket_id = this.singleLoket._id
+					var params = {
+						assign_user_id: null
+					}
+
+					this.$http.put('api/user/loket/' + loket_id, params).then((response) => {
+	          var data = response.data
+	          var status = data.statusCode
+	          if (status == 200) {
+	            swal('Success', data.message, 'success')
+	            this.init()
+	          } else {
+	            swal('Warning', data.message, 'warning')
+	          }
+	        })
+				}
+			},
+			getCurrentUser: function() {
+				this.$http.get('api/user').then((response) => {
+          var data = response.data
+          var status = data.statusCode
+          if (status == 200) {
+          	if (data.data !== null) {
+          		this.currentUser = data.data
+          	}
+          } else {
+            swal('Warning', data.message, 'warning')
+          }
+        })
+			},
 			wsSendTest: function() {
 				ws.onmessage = msg => {
 					console.log(msg.data)
@@ -135,11 +195,15 @@
 					ws.send(JSON.stringify({url: '/queue/last-called', service_id: this.singleLoket.service_id._id}))
 					console.log('test')
 				}
+			},
+			init: function() {
+				this.getListLoket()
+				this.checkIsAssigned()
+				this.getCurrentUser()
 			}
 		},
 		mounted() {
-			this.getListLoket()
-			this.checkIsAssigned()
+			this.init()
 		}
 	};
 </script>

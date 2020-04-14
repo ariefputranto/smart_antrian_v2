@@ -6,12 +6,18 @@ const moment = require('moment-timezone')
 var WsController = (socket, req) => {
 	console.log('Client connected.')
 
+	mongooseObserver.register('Queue', 'update', (updatedUser) => {
+	    // this callback will be executed when a User record is updated
+	    // Do something here, for example, emit changes to client via socket.io
+	    console.log('test')
+	});
+
 	socket.on('message', (msg) => {
 		try {
 			var data = JSON.parse(msg)
 			console.log(data.url)
 			if (!data.url) {
-				socket.send('Url not exist')
+				socket.send(JSON.stringify({'statusCode': 500, 'message': 'Url not exist', 'data': {}}))
 				return
 			}
 
@@ -61,9 +67,9 @@ var WsController = (socket, req) => {
 			return
 		}
 
-		var lastCall = ''
+		var lastCall = '-'
 		if (queue == null) {
-			lastCall = services.code + '1'
+			// lastCall = services.code + '1'
 			socket.send(JSON.stringify({'statusCode': 200, 'message': '', 'data': {'last_call': lastCall}}))
 			return
 		}

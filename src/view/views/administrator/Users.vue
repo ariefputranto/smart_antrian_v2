@@ -354,7 +354,9 @@
           	var responseData = data.data
           	if (responseData !== null) {
           		this.serviceProvider.service_provider_id = responseData.service_provider_id._id
-          	} 
+          	} else {
+              this.serviceProvider.service_provider_id = ''
+            }
 
         		this.serviceProvider.user_id = user._id
           	$('#service-provider-modal').modal('show')
@@ -370,7 +372,7 @@
           if (status == 200) {
             $('#service-provider-modal').modal("hide")
             swal('Success', data.message, 'success')
-            this.serviceProvider.service_provider_id = null
+            this.serviceProvider.service_provider_id = ''
             this.serviceProvider.user_id = null
           } else {
             swal('Warning', data.message, 'warning')

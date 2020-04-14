@@ -29,7 +29,7 @@ class ServicesController {
 		var condition = {service_provider_id: req.user.service_provider}
 
 		try {
-			const services = await Services.find(condition)
+			const services = await Services.find(condition).populate(['service_provider_id'])
 			reply.send({'statusCode': 200, 'message': '', 'data': services})
 		} catch(e) {
 			reply.send({'statusCode': 500, 'message': e.message, 'data': {}})
