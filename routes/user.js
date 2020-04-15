@@ -3,6 +3,7 @@ const UserMiddleware = require('../src/middleware/user')
 
 var LoketController = require('../src/controllers/LoketController')
 var ServicesController = require('../src/controllers/ServicesController')
+var QueueController = require('../src/controllers/QueueController')
 
 async function apiRoutes(fastify, opts) {
 	// regis middleware
@@ -12,6 +13,7 @@ async function apiRoutes(fastify, opts) {
 	// initialize controller
 	LoketController = new LoketController()
 	ServicesController = new ServicesController()
+	QueueController = new QueueController()
 	
 	fastify.get('/', async (req, reply) => {
 		return {'statusCode': 200, 'message': '', 'data': req.user}
@@ -24,6 +26,9 @@ async function apiRoutes(fastify, opts) {
 
 	// Services
 	fastify.get('/services', ServicesController.listAllServices)
+
+	// Queue
+	fastify.post('/queue/last', QueueController.getQueue)
 }
 
 module.exports = apiRoutes

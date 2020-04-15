@@ -10,6 +10,7 @@
 		z-index: 1600;
 	}
 </style>
+
 <template>
     <div>
     	<!-- Content Header (Page header) -->
@@ -46,7 +47,7 @@
       <div class="container">
         <div class="row">
         	<div class="col-lg-12">
-        		<button type="button" class="btn btn-primary" style="margin-bottom: 20px" @click="toggle">Enter Fullscreen</button>
+        		<button type="button" class="btn btn-primary" style="margin-bottom: 20px" @click="enterFullscreen">Enter Fullscreen</button>
         	</div>
         </div>
       </div>
@@ -88,15 +89,31 @@
           }
         })
 			},
-			toggle: function() {
-        // this.$refs['fullscreen'].enter()
+			getLastQueueByService: function(service_id) {
+				var params = {
+					service_id: service_id
+				}
+
+				this.$http.post('api/user/queue/last', params).then((response) => {
+          var data = response.data
+          var status = data.statusCode
+          if (status == 200) {
+          	var responseData = data.data
+          	this.print.lastNumber = responseData.code + responseData.number
+		      	this.$refs.printNumber.print()
+          } else {
+            swal('Warning', data.message, 'warning')
+          }
+        })
+			},
+			enterFullscreen: function() {
         this.fullscreen = true
       },
       getNewQueue: function(service) {
       	this.print.company = service.service_provider_id.name
       	this.print.description = service.service_provider_id.description
       	this.print.service = service.name
-      	this.$refs.printNumber.print()
+      	this.getLastQueueByService(service._id)
       }
 		},
 		mounted() {

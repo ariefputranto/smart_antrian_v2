@@ -121,7 +121,7 @@
           	if (data.data !== null) {
           		this.isAssigned = true
           		this.singleLoket = data.data
-							this.wsSendTest()
+							this.wsInit()
           	} else {
           		this.isAssigned = false
           	}
@@ -181,7 +181,7 @@
           }
         })
 			},
-			wsSendTest: function() {
+			wsInit: function() {
 				ws.onmessage = msg => {
 					console.log(msg.data)
 					var response = JSON.parse(msg.data)
