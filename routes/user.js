@@ -29,6 +29,7 @@ async function apiRoutes(fastify, opts) {
 
 	// Queue
 	fastify.post('/queue/last', QueueController.getQueue)
+	fastify.post('/queue/call', QueueController.callQueue)
 }
 
 module.exports = apiRoutes

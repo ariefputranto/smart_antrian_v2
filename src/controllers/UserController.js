@@ -6,6 +6,7 @@ const Hash = require('password-hash')
 class UserController {
 	constructor (fastify) {
 		this.fastify = fastify
+		this.addUser = this.addUser.bind(this)
 		this.login = this.login.bind(this)
 		this.loginGuest = this.loginGuest.bind(this)
 		this.changeRoles = this.changeRoles.bind(this)
@@ -14,6 +15,9 @@ class UserController {
 	}
 
 	async addUser (req, reply) {
+		const roles = this.roles()
+		const rolesIndex = Object.keys(roles)
+
 		if (!req.body) {
 			reply.send({'statusCode': 500, 'message': 'Body empty', 'data': {}})
 			return
@@ -48,6 +52,10 @@ class UserController {
 			email: request.email,
 			name: request.name,
 			time: new Date()
+		}
+
+		if (rolesIndex.indexOf(request.role.toString()) !== -1) {
+			data.roles = request.role
 		}
 
 		try {
@@ -105,7 +113,12 @@ class UserController {
 			name: user.name,
 			roles: roles[user.roles],
 			token: token,
-			time: user.time
+			time: user.time,
+			service_provider: null
+		}
+
+		if (userServiceProvider !== null) {
+			data.service_provider = userServiceProvider.service_provider_id
 		}
 
 		reply.send({'statusCode': 200, 'message': 'Successfully login', 'data': data})

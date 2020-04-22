@@ -1,17 +1,18 @@
 'use strict'
 
-const fastify = require('fastify')({ logger: true })
+global.fastify = require('fastify')({ logger: false })
 const mongoose = require('mongoose')
 
 // register
 fastify.register(require('../config/config.js'))
 
 // web socket
-fastify.ready(err => {
+fastify.ready((err) => {
 	if (err) throw err
 
 	console.log('Server started.')
  
+ 	// init websocket
 	fastify.ws.on('connection', require('./controllers/WsController.js'))
 })
 

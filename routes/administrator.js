@@ -11,7 +11,7 @@ async function apiRoutes(fastify, opts) {
 	fastify.register(AdministratorMiddleware);
 
 	// initialize controller
-	UserController = new UserController(fastify)
+	UserController = new UserController()
 	ServiceProviderController = new ServiceProviderController(fastify)
 	UserServiceProviderController = new UserServiceProviderController(fastify)
 	

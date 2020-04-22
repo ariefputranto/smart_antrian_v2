@@ -41,6 +41,7 @@
     "password-hash": "^1.2.2",
     "path": "^0.12.7",
     "underscore": "^1.9.2",
+    "url": "^0.11.0",
     "vue-fullscreen": "^2.1.6",
     "vue2-leaflet": "^2.5.2",
     "webpack-cli": "^3.3.10"

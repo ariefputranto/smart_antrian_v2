@@ -46,8 +46,14 @@ class QueueController {
 			return
 		}
 
+		var params = { 
+			service_provider_id: req.user.service_provider, 
+			service_id: request.service_id,
+			date: moment().tz('Asia/Jakarta').format('YYYY-MM-DD'),
+		}
+
 		try {
-			var queue = await Queue.findOne({ service_provider_id: req.user.service_provider, service_id: request.service_id }).sort({ number: -1 })
+			var queue = await Queue.findOne(params).sort({ number: -1 })
 		} catch(e) {
 			reply.send({'statusCode': 500, 'message': e.message, 'data': {}})
 			return
@@ -87,7 +93,7 @@ class QueueController {
 			return
 		}
 
-		if (!request.loket_id || !request.queue_id ) {
+		if (!request.loket_id) {
 			reply.send({'statusCode': 500, 'message': 'Loket id must defined', 'data': {}})
 			return
 		}
@@ -109,26 +115,33 @@ class QueueController {
 			return
 		}
 
+		var params = { 
+			service_provider_id: req.user.service_provider, 
+			service_id: loket.service_id,
+			is_called: false,
+			date: moment().tz('Asia/Jakarta').format('YYYY-MM-DD'),
+		}
+
 		try {
-			var queue = await Queue.findOne({ service_provider_id: req.user.service_provider, _id: request.queue_id })
+			var queue = await Queue.findOne(params)
 		} catch(e) {
 			reply.send({'statusCode': 500, 'message': e.message, 'data': {}})
 			return
 		}
 
 		if (queue == null) {
-			reply.send({'statusCode': 500, 'message': 'Queue not found', 'data': {}})
+			reply.send({'statusCode': 500, 'message': 'Next queue not found', 'data': {}})
 			return
 		}
 
-		var params = {
+		params = {
 			is_called: true,
-			called_loket: loket.name,
+			called_loket: loket._id,
 			called_user: req.user._id
 		}
 
 		try {
-			queue = await Queue.findByIdAndUpdate(queue._id, params, { new: true, useFindAndModify: false })
+			queue = await Queue.updateOne({ _id: queue._id }, params, { new: true, useFindAndModify: false })
 			reply.send({'statusCode': 200, 'message': 'Successfully call user', 'data': queue})
 		} catch(e) {
 			reply.send({'statusCode': 500, 'message': e.message, 'data': {}})

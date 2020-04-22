@@ -134,6 +134,7 @@
               localStorage.name = data.data.name
               localStorage.role = data.data.roles
               localStorage.time = data.data.time
+              localStorage.service_provider = data.data.service_provider
               this.data.name = data.data.name
               this.isLogin = true
             })

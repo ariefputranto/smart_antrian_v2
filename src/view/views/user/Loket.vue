@@ -63,14 +63,14 @@
 			        		<div class="row">
 			        			<div class="col-lg-12 text-center">
 			        				<h1 style="font-weight: 400;font-size: 70px"> {{ lastCalledNumber }}</h1>
-			        				<p>5 more remaining</p>
+			        				<p>{{ countUnCalledQueue }} more remaining</p>
 			        			</div>
 			        		</div>
 	              </div>
 
 	              <div class="card-footer clearfix">
-	              	<button type="button" class="btn btn-info btn-lg"><i class="fas fa-redo-alt"></i></button>
-	              	<button type="button" class="btn btn-success btn-lg float-right"><i class="fas fa-arrow-right"></i></button>
+	              	<button type="button" @click="callUser" class="btn btn-info btn-lg"><i class="fas fa-volume-up"></i></button>
+	              	<button type="button" @click="callNextUser" class="btn btn-success btn-lg float-right"><i class="fas fa-arrow-right"></i></button>
 	              </div>
 	            </div>
 	        	</div>
@@ -83,10 +83,6 @@
 <script>
 	import Breadcrumb from '@/components/Breadcrumb.vue'
 
-	// Init ws
-	const host = location.origin.replace(/^http/, 'ws')
-	const ws = new WebSocket(host)
-
 	export default {
 		name: "Home",
 		components: {
@@ -95,10 +91,12 @@
 		data() {
 			return {
 				isAssigned: false,
+				lastCalledNumber: '',
+				countUnCalledQueue: 0,
 				listLoket: [],
 				singleLoket: {},
-				lastCalledNumber: '',
-				currentUser: {}
+				currentUser: {},
+				ws: null
 			}
 		},
 		methods: {
@@ -182,20 +180,74 @@
         })
 			},
 			wsInit: function() {
-				ws.onmessage = msg => {
+				// Init ws
+				const host = location.origin.replace(/^http/, 'ws') + '/' + localStorage.service_provider
+				this.ws = new WebSocket(host)
+
+				this.ws.onmessage = msg => {
 					console.log(msg.data)
 					var response = JSON.parse(msg.data)
-					if (typeof response.data.last_call !== 'undefined') {
-						this.lastCalledNumber = response.data.last_call
-						console.log(this.lastCalledNumber)
+					if (typeof response.data.url !== 'undefined') {
+						var url = response.data.url
+
+						// if last called
+						if (url == '/queue/last-called') {
+							if (typeof response.data.last_call !== 'undefined') {
+								this.lastCalledNumber = response.data.last_call
+								console.log(this.lastCalledNumber)
+							}
+						}
+
+						// get count
+						if (url == '/queue/count') {
+							if (typeof response.data.count_queue !== 'undefined') {
+								this.countUnCalledQueue = response.data.count_queue
+								console.log(this.countUnCalledQueue)
+							}
+						}
+
+						// get new queue
+						if (url == '/queue/new') {
+							if (this.singleLoket.service_id._id == response.data.queue.service_id) {
+								this.ws.send(JSON.stringify({url: '/queue/count', service_id: this.singleLoket.service_id._id}))
+							}
+						}
+
 					}
 				}
 
-				if (typeof this.singleLoket._id !== 'undefined') {
-					ws.send(JSON.stringify({url: '/queue/last-called', service_id: this.singleLoket.service_id._id}))
-					console.log('test')
+				this.ws.onopen = () => {
+					if (typeof this.singleLoket._id !== 'undefined') {
+						this.ws.send(JSON.stringify({url: '/queue/last-called', service_id: this.singleLoket.service_id._id, loket_id: this.singleLoket._id}))
+						this.ws.send(JSON.stringify({url: '/queue/count', service_id: this.singleLoket.service_id._id}))
+					}
 				}
 			},
+
+			callUser: function() {
+				if (typeof this.singleLoket._id !== 'undefined') {
+					console.log('call')
+					var text = 'Nomor antrian. ' + this.lastCalledNumber + '. Silahkan menuju ke ' + this.singleLoket.name
+					this.ws.send(JSON.stringify({url: '/queue/call', loket: this.singleLoket._id, text: text}))
+				}
+			},
+
+			callNextUser: function() {
+				if (typeof this.singleLoket._id !== 'undefined') {
+					var params = {
+						loket_id: this.singleLoket._id
+					}
+
+					this.$http.post('api/user/queue/call', params).then((response) => {
+	          var data = response.data
+	          var status = data.statusCode
+	          if (status != 200) {
+	          	swal('Warning', data.message, 'warning')
+	          }
+	        })
+				}
+			},
+
 			init: function() {
 				this.getListLoket()
 				this.checkIsAssigned()
@@ -204,6 +256,9 @@
 		},
 		mounted() {
 			this.init()
+		},
+		beforeDestroy() {
+			this.ws.close()
 		}
 	};
 </script>
