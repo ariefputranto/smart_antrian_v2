@@ -27,6 +27,7 @@ fastify.register(require('../routes/common.js'))
 fastify.register(require('../routes/administrator.js'), { prefix: "api/administrator" })
 fastify.register(require('../routes/admin.js'), { prefix: "api/admin" })
 fastify.register(require('../routes/user.js'), { prefix: "api/user" })
+fastify.register(require('../routes/guest.js'), { prefix: "api/guest" })
 
 // run
 fastify.listen(3000, err => {

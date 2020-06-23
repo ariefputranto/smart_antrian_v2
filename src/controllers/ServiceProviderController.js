@@ -62,8 +62,8 @@ class ServiceProviderController {
 			return
 		}
 
-		if (!request.name || !request.description || !request.type ) {
-			reply.send({'statusCode': 500, 'message': 'Name, description and type must defined', 'data': {}})
+		if (!request.name || !request.description || !request.type || !request.latitude || !request.longitude) {
+			reply.send({'statusCode': 500, 'message': 'Name, description, type, latitude and longitude must defined', 'data': {}})
 			return
 		}
 
@@ -71,10 +71,25 @@ class ServiceProviderController {
 			name: request.name,
 			description: request.description,
 			type: request.type,
+			latitude: request.latitude,
+			longitude: request.longitude,
 			time: new Date()
 		}
 
-		if (request.icon) {
+		if (parseFloat(request.inner_distance) > parseFloat(request.outer_distance)) {
+			reply.send({'statusCode': 500, 'message': "Inner distance must be lower or equal to outer distance", 'data': {}})
+			return
+		}
+
+		if (request.inner_distance) {
+			data.inner_distance = request.inner_distance
+		}
+
+		if (request.outer_distance) {
+			data.outer_distance = request.outer_distance
+		}
+
+		if (request.icon && typeof request.icon.name == 'string') {
 			if (request.icon.mimetype.indexOf('image') === -1) {
 				reply.send({'statusCode': 500, 'message': 'File must be image', 'data': {}})
 				return
@@ -87,13 +102,13 @@ class ServiceProviderController {
 
 			// Upload file
 			var oldpath = request.icon.tempFilePath
-	        var newpath = path + fileName
+			var newpath = path + fileName
 
-	        mv(oldpath, newpath, {mkdirp: true, clobber: false}, function (err) {
-        		if (err) {console.log(err)}
-        	})
+			mv(oldpath, newpath, {mkdirp: true, clobber: false}, function (err) {
+				if (err) {console.log(err)}
+			})
 
-        	data.icon = fileName
+			data.icon = fileName
 		}
 
 		try {
@@ -118,26 +133,32 @@ class ServiceProviderController {
 
 	async updateServiceProvider (req, reply) {
 		const id = req.params.id
-	    const request = req.body
+		const request = req.body
 
-	    if (!request) {
+		if (!request) {
 			reply.send({'statusCode': 500, 'message': 'Body empty', 'data': {}})
 			return
-	    }
+		}
 
-	    try {
-	    	var serviceProvider = await ServiceProvider.findById(id);
-	    } catch(e) {
+		try {
+			var serviceProvider = await ServiceProvider.findById(id);
+		} catch(e) {
 			reply.send({'statusCode': 500, 'message': e.message, 'data': {}})
 			return
-	    }
+		}
 
-	    if (serviceProvider == null) {
+		if (serviceProvider == null) {
 			reply.send({'statusCode': 500, 'message': 'Service Provider is not exist', 'data': {}})
 			return
 		}
 
-	    var param = {}
+		// validate inner and outer distance
+		if (parseFloat(request.inner_distance) > parseFloat(request.outer_distance)) {
+			reply.send({'statusCode': 500, 'message': "Inner distance must be lower or equal to outer distance", 'data': {}})
+			return
+		}
+
+		var param = {}
 
 		if (request.name) {
 			param.name = request.name
@@ -151,7 +172,23 @@ class ServiceProviderController {
 			param.type = request.type
 		}
 
-		if (request.icon) {
+		if (request.latitude) {
+			param.latitude = request.latitude
+		}
+
+		if (request.longitude) {
+			param.longitude = request.longitude
+		}
+
+		if (request.inner_distance) {
+			param.inner_distance = request.inner_distance
+		}
+
+		if (request.outer_distance) {
+			param.outer_distance = request.outer_distance
+		}
+
+		if (request.icon && typeof request.icon.name == 'string') {
 			if (request.icon.mimetype.indexOf('image') === -1) {
 				reply.send({'statusCode': 500, 'message': 'File must be image', 'data': {}})
 				return
@@ -164,24 +201,24 @@ class ServiceProviderController {
 
 			// Upload file
 			var oldpath = request.icon.tempFilePath
-	        var newpath = path + fileName
+			var newpath = path + fileName
 
-	        mv(oldpath, newpath, {mkdirp: true, clobber: false}, function (err) {
-        		if (err) {console.log(err)}
-        	})
+			mv(oldpath, newpath, {mkdirp: true, clobber: false}, function (err) {
+				if (err) {console.log(err)}
+			})
 
 			param.icon = fileName
 
 			if (serviceProvider.icon !== null) {
 				var path = __dirname + '/../../public/uploads/'
 				fs.unlink(path + serviceProvider.icon, (err) => {
-				  if (err) console.log(err)
+					if (err) console.log(err)
 				});
 			}
 		}
 
 		try {
-		    const update = await ServiceProvider.findByIdAndUpdate(id, param, { new: true, useFindAndModify: false })
+			const update = await ServiceProvider.findByIdAndUpdate(id, param, { new: true, useFindAndModify: false })
 			reply.send({'statusCode': 200, 'message': 'Successfully update service provider', 'data': update})
 		} catch(e) {
 			reply.send({'statusCode': 500, 'message': e.message, 'data': {}})
@@ -191,20 +228,20 @@ class ServiceProviderController {
 	async deleteServiceProvider (req, reply) {
 		const id = req.params.id
 
-	    try {
-	    	var serviceProvider = await ServiceProvider.findByIdAndRemove(id);
+		try {
+			var serviceProvider = await ServiceProvider.findByIdAndRemove(id, { useFindAndModify: false });
 
-			if (serviceProvider.icon !== null) {
+			if (serviceProvider.icon !== null && typeof serviceProvider.icon !== 'undefined') {
 				var path = __dirname + '/../../public/uploads/'
 				fs.unlink(path + serviceProvider.icon, (err) => {
-				  if (err) console.log(err)
+					if (err) console.log(err)
 				});
 			}
 			
 			reply.send({'statusCode': 200, 'message': 'Successfully delete service provider', 'data': serviceProvider})
-	    } catch(e) {
+		} catch(e) {
 			reply.send({'statusCode': 500, 'message': e.message, 'data': {}})
-	    }
+		}
 	}
 }
 

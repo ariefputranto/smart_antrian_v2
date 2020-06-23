@@ -4,7 +4,7 @@ async function plugin (fastify, opts) {
 	fastify.addHook('preValidation', async (request, reply) => {
 		try {
 	    	var login = request.user
-	    	if (login.roles != 1) {
+	    	if (login.roles != 1 || login.service_provider == null) {
 	    		reply.send({'statusCode': 500, 'message': "You are not allowed!", 'data': {}})
 				return
 	    	}

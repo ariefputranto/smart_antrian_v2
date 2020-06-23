@@ -98,7 +98,7 @@ class UserController {
 		try {
 			var userServiceProvider = await UserServiceProvider.findOne({user_id : user._id})
 		} catch(e) {
-			reply.send({'statusCode': 500, 'message': 'DB error', 'data': {}})
+			reply.send({'statusCode': 500, 'message': 'User don\'t had services', 'data': {}})
 			return
 		}
 
@@ -144,16 +144,16 @@ class UserController {
 			time: new Date(),
 		}
 
-		try {
-			var userServiceProvider = await UserServiceProvider.findOne({user_id : user._id})
-		} catch(e) {
-			reply.send({'statusCode': 500, 'message': 'DB error', 'data': {}})
-			return
-		}
+		// try {
+		// 	var userServiceProvider = await UserServiceProvider.findOne({user_id : user._id})
+		// } catch(e) {
+		// 	reply.send({'statusCode': 500, 'message': 'DB error', 'data': {}})
+		// 	return
+		// }
 
-		if (userServiceProvider !== null) {
-			user.service_provider = userServiceProvider.service_provider_id
-		}
+		// if (userServiceProvider !== null) {
+		// 	user.service_provider = userServiceProvider.service_provider_id
+		// }
 
 		const token = this.fastify.jwt.sign(user, {expiresIn: expiredIn})
 
@@ -260,7 +260,7 @@ class UserController {
 		const id = req.params.id
 
 	    try {
-	    	var users = await Users.findByIdAndRemove(id);
+	    	var users = await Users.findByIdAndRemove(id, { useFindAndModify: false });
 			reply.send({'statusCode': 200, 'message': 'Successfully delete users', 'data': users})
 	    } catch(e) {
 			reply.send({'statusCode': 500, 'message': e.message, 'data': {}})

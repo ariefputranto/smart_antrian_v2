@@ -185,6 +185,8 @@
           } else {
             swal('Warning', data.message, 'warning')
           }
+        }, error => {
+        	swal('Warning', error.message, 'warning')
         })
 			},
 			getListRoles: function() {
@@ -196,6 +198,8 @@
           } else {
             swal('Warning', data.message, 'warning')
           }
+        }, error => {
+        	swal('Warning', error.message, 'warning')
         })
 			},
 			addUser: function() {
@@ -209,6 +213,8 @@
           } else {
             swal('Warning', data.message, 'warning')
           }
+        }, error => {
+        	swal('Warning', error.message, 'warning')
         })
 			},
 			updateUser: function() {
@@ -222,6 +228,8 @@
           } else {
             swal('Warning', data.message, 'warning')
           }
+        }, error => {
+        	swal('Warning', error.message, 'warning')
         })
 			},
 			deleteUser: function(userId) {
@@ -244,6 +252,8 @@
 		          } else {
 		            swal('Warning', data.message, 'warning')
 		          }
+		        }, error => {
+		        	swal('Warning', error.message, 'warning')
 		        })
 					}
 				})

@@ -31,10 +31,6 @@
 			        					<th>Name</th>
 			        					<th>Service</th>
 			        					<th>Token Expire</th>
-			        					<th>Latitude</th>
-			        					<th>Longitude</th>
-			        					<th>Inner Range</th>
-			        					<th>Outer Range</th>
 			        					<th>Assigned User</th>
 			        					<th>Action</th>
 			        				</tr>
@@ -44,10 +40,6 @@
 			        					<td>{{ loket.name }}</td>
 			        					<td>{{ loket.service_id.name }}</td>
 			        					<td>{{ loket.token_expiration_time }}</td>
-			        					<td>{{ Math.round(loket.latitude * 100) / 100 }}</td>
-			        					<td>{{ Math.round(loket.longitude * 100) / 100 }}</td>
-			        					<td>{{ loket.inner_distance }} Km</td>
-			        					<td>{{ loket.outer_distance }} Km</td>
 			        					<td>{{ typeof loket.assign_user_id !== 'undefined' && loket.assign_user_id !== null ? loket.assign_user_id.name : '-' }}</td>
 			        					<td>
 			        						<button class="btn btn-sm btn-primary" title="Update Loket" data-toggle="modal" data-target="#add-modal" @click="modalUpdateLoket(loket)" style="margin-right: 5px"><i class="fa fa-check-square"></i></button>
@@ -140,27 +132,6 @@
               			<input type="number" v-model="input.token_expiration_time" class="form-control" placeholder="Token Expired (In second)">
               		</div>
               		<div class="form-group">
-              			<label>Inner Distance</label>
-              			<input type="number" v-model="input.inner_distance" class="form-control" placeholder="Inner Distance (In Km)">
-              		</div>
-              		<div class="form-group">
-              			<label>Outer Distance</label>
-              			<input type="number" v-model="input.outer_distance" class="form-control" placeholder="Outer Distance (In Km)">
-              		</div>
-              		<div class="form-group">
-              			<label>Map</label>
-              			<l-map
-              				style="height: 300px; width: 100%"
-								      :zoom="map.zoom"
-								      :center="map.center"
-								      ref="loketMap"
-								      @click="mapClickChanged"
-              			>
-              				<l-tile-layer :url="map.url_tile"></l-tile-layer>
-              				<l-marker :lat-lng="map.markerLatLng" :draggable="true" @update:lat-lng="markerChanged"></l-marker>
-              			</l-map>
-              		</div>
-              		<div class="form-group">
               			<label>Assigned User</label>
               			<select class="form-control" v-model="input.assign_user_id">
               				<option value="">None</option>
@@ -186,19 +157,11 @@
 	import Breadcrumb from '@/components/Breadcrumb.vue'
 	import Pagination from '@/components/Pagination.vue'
 
-	// leaflet
-	import 'leaflet/dist/leaflet.css'
-	import L from 'leaflet'
-	import { LMap, LTileLayer, LMarker } from 'vue2-leaflet'
-
 	export default {
 		name: "Home",
 		components: {
 			Breadcrumb,
-			Pagination,
-			LMap,
-	    LTileLayer,
-	    LMarker
+			Pagination
 		},
 		data() {
 			return {
@@ -211,10 +174,6 @@
 					name: '',
 					service_id: '',
 					token_expiration_time: '',
-					inner_distance: '',
-					outer_distance: '',
-					latitude: -7.280547,
-					longitude: 112.797532,
 					assign_user_id: '',
 				},
 				search: {
@@ -227,12 +186,6 @@
 					page: 1,
 					per_page: 10,
 				},
-				map: {
-					url_tile: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-					zoom: 13,
-					center: [-7.280547, 112.797532],
-					markerLatLng: [-7.280547, 112.797532,]
-				}
 			}
 		},
 		methods: {
@@ -246,6 +199,8 @@
           } else {
             swal('Warning', data.message, 'warning')
           }
+        }, error => {
+        	swal('Warning', error.message, 'warning')
         })
 			},
 			getListService: function() {
@@ -257,6 +212,8 @@
           } else {
             swal('Warning', data.message, 'warning')
           }
+        }, error => {
+        	swal('Warning', error.message, 'warning')
         })
 			},
 			getListUser: function() {
@@ -268,6 +225,8 @@
           } else {
             swal('Warning', data.message, 'warning')
           }
+        }, error => {
+        	swal('Warning', error.message, 'warning')
         })
 			},
 			addLoket: function() {
@@ -281,6 +240,8 @@
           } else {
             swal('Warning', data.message, 'warning')
           }
+        }, error => {
+        	swal('Warning', error.message, 'warning')
         })
 			},
 			updateLoket: function() {
@@ -294,6 +255,8 @@
           } else {
             swal('Warning', data.message, 'warning')
           }
+        }, error => {
+        	swal('Warning', error.message, 'warning')
         })
 			},
 			deleteLoket: function(loketId) {
@@ -316,6 +279,8 @@
 		          } else {
 		            swal('Warning', data.message, 'warning')
 		          }
+		        }, error => {
+		        	swal('Warning', error.message, 'warning')
 		        })
 					}
 				})
@@ -328,14 +293,7 @@
 				this.input.name = ''
 				this.input.service_id = ''
 				this.input.token_expiration_time = ''
-				this.input.inner_distance = ''
-				this.input.outer_distance = ''
 				this.input.assign_user_id = ''
-
-				this.map.center = [-7.280547, 112.797532]
-				this.map.markerLatLng = [-7.280547, 112.797532]
-
-				console.log(this.map)
 			},
 			setIsCreate: function(isCreate) {
 				if (isCreate) {
@@ -345,7 +303,6 @@
 					this.isCreate = false
 					this.clearField()
 				}
-			  this.mapModalShown()
 			},
 			modalUpdateLoket: function(loket) {
 				this.setIsCreate(false)
@@ -354,62 +311,20 @@
 				this.input.name = loket.name
 				this.input.service_id = loket.service_id._id
 				this.input.token_expiration_time = loket.token_expiration_time
-				this.input.inner_distance = loket.inner_distance
-				this.input.outer_distance = loket.outer_distance
 				this.input.latitude = loket.latitude
 				this.input.longitude = loket.longitude
 				this.input.assign_user_id = typeof loket.assign_user_id !== 'undefined' && loket.assign_user_id !== null ? loket.assign_user_id._id : ''
-
-				this.map.center = [loket.latitude, loket.longitude]
-				this.map.markerLatLng = [loket.latitude, loket.longitude]
 			},
 			getPaginationData: function(data) {
 				this.pagination.page = data.page
 				this.pagination.perPage = data.perPage
 				this.getListLoket()
 			},
-			// fix map
-			mapModalShown: function() {
-				console.log('on map modal shown')
-	      setTimeout(() => {
-	        this.$refs.loketMap.mapObject.invalidateSize(); 
-	      }, 500);
-	    },
-	    getCurrentLocation: function() {
-	    	// Try HTML5 geolocation.
-        if (navigator.geolocation) {
-            console.log('location allowed')
-            navigator.geolocation.getCurrentPosition((position) => {
-                console.log(position)
-                this.map.center = [position.coords.latitude, position.coords.longitude]
-            }, function() {
-                console.log('no location access');
-                $.getJSON('https://ipapi.co/json/', (result) => {
-                    console.log(result);
-		                this.map.center = [parseFloat(result.latitude), parseFloat(result.longitude)]
-                });
-            });
-        } else {
-            console.log('no location access');
-            $.getJSON('https://ipapi.co/json/', (result) => {
-                console.log(result);
-                this.map.center = [parseFloat(result.latitude), parseFloat(result.longitude)]
-            });
-        }
-	    },
-	    markerChanged: function(latlng) {
-	    	this.input.latitude = latlng.lat
-	    	this.input.longitude = latlng.lng
-	    },
-	    mapClickChanged: function(event){
-	    	this.map.markerLatLng = event.latlng
-	    }
 		},
 		mounted() {
 			this.getListLoket()
 			this.getListService()
 			this.getListUser()
-			this.getCurrentLocation()
 		}
 	};
 </script>

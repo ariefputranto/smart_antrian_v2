@@ -81,8 +81,8 @@ class LoketController {
 			return
 		}
 
-		if (!request.name || !request.service_id || !request.token_expiration_time || !request.latitude || !request.longitude ) {
-			reply.send({'statusCode': 500, 'message': 'Name, service, token expiration, latitude and longitude must defined', 'data': {}})
+		if (!request.name || !request.service_id || !request.token_expiration_time) {
+			reply.send({'statusCode': 500, 'message': 'Name, service and token expiration must defined', 'data': {}})
 			return
 		}
 
@@ -111,23 +111,8 @@ class LoketController {
 			service_id: service._id,
 			name: request.name,
 			token_expiration_time: request.token_expiration_time,
-			latitude: request.latitude,
-			longitude: request.longitude,
 			assign_user_id: null,
 			time: new Date()
-		}
-
-		if (parseFloat(request.inner_distance) > parseFloat(request.outer_distance)) {
-			reply.send({'statusCode': 500, 'message': "Inner distance must be lower or equal to outer distance", 'data': {}})
-			return
-		}
-
-		if (request.inner_distance) {
-			data.inner_distance = request.inner_distance
-		}
-
-		if (request.outer_distance) {
-			data.outer_distance = request.outer_distance
 		}
 
 		if (request.assign_user_id) {
@@ -163,29 +148,29 @@ class LoketController {
 
 	async updateLoket (req, reply) {
 		const id = req.params.id
-	    const request = req.body
+		const request = req.body
 
-	    if (!request) {
+		if (!request) {
 			reply.send({'statusCode': 500, 'message': 'Body empty', 'data': {}})
 			return
-	    }
+		}
 
-	    try {
-	    	var loket = await Loket.findOne({_id: id, service_provider_id: req.user.service_provider})
-	    } catch(e) {
+		try {
+			var loket = await Loket.findOne({_id: id, service_provider_id: req.user.service_provider})
+		} catch(e) {
 			reply.send({'statusCode': 500, 'message': e.message, 'data': {}})
 			return
-	    }
+		}
 
-	    if (loket == null) {
+		if (loket == null) {
 			reply.send({'statusCode': 500, 'message': 'Loket is not exist', 'data': {}})
 			return
 		}
 
-	    var param = {
-	    	user_id: req.user._id,
+		var param = {
+			user_id: req.user._id,
 			service_provider_id: req.user.service_provider
-	    }
+		}
 
 		if (parseFloat(request.inner_distance) > parseFloat(request.outer_distance)) {
 			reply.send({'statusCode': 500, 'message': "Inner distance must be lower or equal to outer distance", 'data': {}})
@@ -223,22 +208,6 @@ class LoketController {
 			param.token_expiration_time = request.token_expiration_time
 		}
 
-		if (request.latitude) {
-			param.latitude = request.latitude
-		}
-
-		if (request.longitude) {
-			param.longitude = request.longitude
-		}
-
-		if (request.inner_distance) {
-			param.inner_distance = request.inner_distance
-		}
-
-		if (request.outer_distance) {
-			param.outer_distance = request.outer_distance
-		}
-
 		if (request.assign_user_id) {
 			try {
 				var user = await Users.findById(request.assign_user_id)
@@ -253,7 +222,7 @@ class LoketController {
 		}
 
 		try {
-		    const update = await Loket.findByIdAndUpdate(id, param, { new: true, useFindAndModify: false })
+			const update = await Loket.findByIdAndUpdate(id, param, { new: true, useFindAndModify: false })
 			reply.send({'statusCode': 200, 'message': 'Successfully update loket', 'data': update})
 		} catch(e) {
 			reply.send({'statusCode': 500, 'message': e.message, 'data': {}})
@@ -263,24 +232,24 @@ class LoketController {
 	async deleteLoket (req, reply) {
 		const id = req.params.id
 
-	    try {
-	    	var loket = await Loket.findOne({_id: id, service_provider_id: req.user.service_provider})
-	    } catch(e) {
+		try {
+			var loket = await Loket.findOne({_id: id, service_provider_id: req.user.service_provider})
+		} catch(e) {
 			reply.send({'statusCode': 500, 'message': e.message, 'data': {}})
 			return
-	    }
+		}
 
-	    if (loket == null) {
+		if (loket == null) {
 			reply.send({'statusCode': 500, 'message': 'Loket is not exist', 'data': {}})
 			return
 		}
 
-	    try {
-	    	var loket = await Loket.findByIdAndRemove(id);
+		try {
+			var loket = await Loket.findByIdAndRemove(id, { useFindAndModify: false });
 			reply.send({'statusCode': 200, 'message': 'Successfully delete loket', 'data': loket})
-	    } catch(e) {
+		} catch(e) {
 			reply.send({'statusCode': 500, 'message': e.message, 'data': {}})
-	    }
+		}
 	}
 }
 

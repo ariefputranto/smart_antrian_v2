@@ -175,6 +175,8 @@
           } else {
             swal('Warning', data.message, 'warning')
           }
+        }, error => {
+        	swal('Warning', error.message, 'warning')
         })
 			},
 			addService: function() {
@@ -188,6 +190,8 @@
           } else {
             swal('Warning', data.message, 'warning')
           }
+        }, error => {
+        	swal('Warning', error.message, 'warning')
         })
 			},
 			updateService: function() {
@@ -201,6 +205,8 @@
           } else {
             swal('Warning', data.message, 'warning')
           }
+        }, error => {
+        	swal('Warning', error.message, 'warning')
         })
 			},
 			deleteService: function(serviceId) {
@@ -223,6 +229,8 @@
 		          } else {
 		            swal('Warning', data.message, 'warning')
 		          }
+		        }, error => {
+		        	swal('Warning', error.message, 'warning')
 		        })
 					}
 				})

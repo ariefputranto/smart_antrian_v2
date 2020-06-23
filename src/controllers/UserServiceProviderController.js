@@ -198,7 +198,7 @@ class UserServiceProviderController {
 
 			if (userServiceProvider != null) {
 				try {
-					userServiceProvider = await UserServiceProvider.findByIdAndRemove(userServiceProvider._id)
+					userServiceProvider = await UserServiceProvider.findByIdAndRemove(userServiceProvider._id, { useFindAndModify: false })
 				} catch(e) {
 					reply.send({'statusCode': 500, 'message': e.message, 'data': {}})
 					return

@@ -32,6 +32,10 @@
 			        					<th>Description</th>
 			        					<th>Type</th>
 			        					<th>Icon</th>
+			        					<th>Latitude</th>
+			        					<th>Longitude</th>
+			        					<th>Inner Range</th>
+			        					<th>Outer Range</th>
 			        					<th>Action</th>
 			        				</tr>
 			        			</thead>
@@ -41,6 +45,10 @@
 			        					<td>{{ service.description }}</td>
 			        					<td>{{ service.type }}</td>
 			        					<td>{{ service.icon }}</td>
+			        					<td>{{ Math.round(service.latitude * 100) / 100 }}</td>
+			        					<td>{{ Math.round(service.longitude * 100) / 100 }}</td>
+			        					<td>{{ service.inner_distance }} Km</td>
+			        					<td>{{ service.outer_distance }} Km</td>
 			        					<td>
 			        						<button class="btn btn-sm btn-primary" title="Update Service Provider" data-toggle="modal" data-target="#add-modal" @click="modalUpdateServiceProvider(service)" style="margin-right: 5px"><i class="fa fa-check-square"></i></button>
 			        						<button class="btn btn-sm btn-danger" title="Delete Service Provider" @click="deleteServiceProvider(service._id)"><i class="fa fa-trash"></i></button>
@@ -130,6 +138,27 @@
               			<label style="display: block;">Preview</label>
               			<img :src="imagePath + input.icon" style="max-width: 300px;margin-left: auto;margin-right: auto;display: block;">
               		</div>
+              		<div class="form-group">
+              			<label>Inner Distance</label>
+              			<input type="number" v-model="input.inner_distance" class="form-control" placeholder="Inner Distance (In Km)">
+              		</div>
+              		<div class="form-group">
+              			<label>Outer Distance</label>
+              			<input type="number" v-model="input.outer_distance" class="form-control" placeholder="Outer Distance (In Km)">
+              		</div>
+              		<div class="form-group">
+              			<label>Map</label>
+              			<l-map
+              				style="height: 300px; width: 100%"
+								      :zoom="map.zoom"
+								      :center="map.center"
+								      ref="serviceProviderMap"
+								      @click="mapClickChanged"
+              			>
+              				<l-tile-layer :url="map.url_tile"></l-tile-layer>
+              				<l-marker :lat-lng="map.markerLatLng" :draggable="true" @update:lat-lng="markerChanged"></l-marker>
+              			</l-map>
+              		</div>
               	</div>
               </div>
             </div>
@@ -149,11 +178,19 @@
 	import Breadcrumb from '@/components/Breadcrumb.vue'
 	import Pagination from '@/components/Pagination.vue'
 
+	// leaflet
+	import 'leaflet/dist/leaflet.css'
+	import L from 'leaflet'
+	import { LMap, LTileLayer, LMarker } from 'vue2-leaflet'
+
 	export default {
 		name: "Home",
 		components: {
 			Breadcrumb,
-			Pagination
+			Pagination,
+			LMap,
+	    LTileLayer,
+	    LMarker
 		},
 		data() {
 			return {
@@ -165,7 +202,11 @@
 					name: '',
 					description: '',
 					type: '',
-					icon: ''
+					icon: '',
+					inner_distance: '',
+					outer_distance: '',
+					latitude: -7.280547,
+					longitude: 112.797532,
 				},
 				search: {
 					name: '',
@@ -176,6 +217,12 @@
 					response: null,
 					page: 1,
 					per_page: 10,
+				},
+				map: {
+					url_tile: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+					zoom: 13,
+					center: [-7.280547, 112.797532],
+					markerLatLng: [-7.280547, 112.797532,]
 				}
 			}
 		},
@@ -193,11 +240,19 @@
         })
 			},
 			addServiceProvider: function() {
-				let formData = new FormData()
-				formData.append('name', this.input.name)
-				formData.append('description', this.input.description)
-				formData.append('type', this.input.type)
-				formData.append('icon', this.input.icon)
+				if (typeof this.input.icon.name == 'string') {
+					var formData = new FormData()
+					formData.append('name', this.input.name)
+					formData.append('description', this.input.description)
+					formData.append('type', this.input.type)
+					formData.append('icon', this.input.icon)
+					formData.append('inner_distance', this.input.inner_distance)
+					formData.append('outer_distance', this.input.outer_distance)
+					formData.append('latitude', this.input.latitude)
+					formData.append('longitude', this.input.longitude)
+				} else {
+					var formData = this.input
+				}
 
 				this.$http.post('api/administrator/service-provider', formData).then((response) => {
           var data = response.data
@@ -212,11 +267,19 @@
         })
 			},
 			updateServiceProvider: function() {
-				let formData = new FormData()
-				formData.append('name', this.input.name)
-				formData.append('description', this.input.description)
-				formData.append('type', this.input.type)
-				formData.append('icon', this.input.icon)
+				if (typeof this.input.icon.name == 'string') {
+					var formData = new FormData()
+					formData.append('name', this.input.name)
+					formData.append('description', this.input.description)
+					formData.append('type', this.input.type)
+					formData.append('icon', this.input.icon)
+					formData.append('inner_distance', this.input.inner_distance)
+					formData.append('outer_distance', this.input.outer_distance)
+					formData.append('latitude', this.input.latitude)
+					formData.append('longitude', this.input.longitude)
+				} else {
+					var formData = this.input
+				}
 
 				this.$http.put('api/administrator/service-provider/'+this.serviceProviderId, formData).then((response) => {
           var data = response.data
@@ -263,7 +326,12 @@
 				this.input.description = ''
 				this.input.type = ''
 				this.input.icon = ''
+				this.input.inner_distance = ''
+				this.input.outer_distance = ''
 				this.$refs.file.value = ''
+
+				this.map.center = [-7.280547, 112.797532]
+				this.map.markerLatLng = [-7.280547, 112.797532]
 			},
 			setIsCreate: function(isCreate) {
 				if (isCreate) {
@@ -273,6 +341,8 @@
 					this.isCreate = false
 					this.clearField()
 				}
+
+			  this.mapModalShown()
 			},
 			modalUpdateServiceProvider: function(serviceProvider) {
 				this.setIsCreate(false)
@@ -281,6 +351,13 @@
 				this.input.description = serviceProvider.description
 				this.input.type = serviceProvider.type
 				this.input.icon = typeof serviceProvider.icon == 'undefined' ? '' : serviceProvider.icon
+				this.input.inner_distance = serviceProvider.inner_distance
+				this.input.outer_distance = serviceProvider.outer_distance
+
+				if (serviceProvider.latitude && serviceProvider.longitude) {
+					this.map.center = [serviceProvider.latitude, serviceProvider.longitude]
+					this.map.markerLatLng = [serviceProvider.latitude, serviceProvider.longitude]
+				}
 			},
 			getPaginationData: function(data) {
 				this.pagination.page = data.page
@@ -289,10 +366,48 @@
 			},
 			fileChanged: function() {
 				this.input.icon = this.$refs.file.files[0]
-			}
+			},
+
+			// fix map
+			mapModalShown: function() {
+				console.log('on map modal shown')
+	      setTimeout(() => {
+	        this.$refs.serviceProviderMap.mapObject.invalidateSize(); 
+	      }, 500);
+	    },
+	    getCurrentLocation: function() {
+	    	// Try HTML5 geolocation.
+        if (navigator.geolocation) {
+            console.log('location allowed')
+            navigator.geolocation.getCurrentPosition((position) => {
+                console.log(position)
+                this.map.center = [position.coords.latitude, position.coords.longitude]
+            }, function() {
+                console.log('no location access');
+                $.getJSON('https://ipapi.co/json/', (result) => {
+                    console.log(result);
+		                this.map.center = [parseFloat(result.latitude), parseFloat(result.longitude)]
+                });
+            });
+        } else {
+            console.log('no location access');
+            $.getJSON('https://ipapi.co/json/', (result) => {
+                console.log(result);
+                this.map.center = [parseFloat(result.latitude), parseFloat(result.longitude)]
+            });
+        }
+	    },
+	    markerChanged: function(latlng) {
+	    	this.input.latitude = latlng.lat
+	    	this.input.longitude = latlng.lng
+	    },
+	    mapClickChanged: function(event){
+	    	this.map.markerLatLng = event.latlng
+	    }
 		},
 		mounted() {
 			this.getListServiceProvider()
+			this.getCurrentLocation()
 		}
 	};
 </script>

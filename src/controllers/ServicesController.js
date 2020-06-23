@@ -36,6 +36,17 @@ class ServicesController {
 		}
 	}
 
+	async listAllServicesByProvider (req, reply) {
+		var condition = {service_provider_id: req.params && req.params.service_provider ? req.params.service_provider : null}
+
+		try {
+			const services = await Services.find(condition).populate(['service_provider_id'])
+			reply.send({'statusCode': 200, 'message': '', 'data': services})
+		} catch(e) {
+			reply.send({'statusCode': 500, 'message': e.message, 'data': {}})
+		}
+	}
+
 	async singleServices (req, reply) {
 		try {
 			const id = req.params.id
@@ -167,7 +178,7 @@ class ServicesController {
 		}
 
 	    try {
-	    	var services = await Services.findByIdAndRemove(id);
+	    	var services = await Services.findByIdAndRemove(id, { useFindAndModify: false });
 			reply.send({'statusCode': 200, 'message': 'Successfully delete services', 'data': services})
 	    } catch(e) {
 			reply.send({'statusCode': 500, 'message': e.message, 'data': {}})

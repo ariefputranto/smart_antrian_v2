@@ -6,6 +6,10 @@ const schema = new mongoose.Schema({
   description: String,
   type: String,
   icon: String,
+  latitude: Number,
+  longitude: Number,
+  outer_distance: Number,
+  inner_distance: Number,
   time: {type: Date, default: Date.now}
 })
 
