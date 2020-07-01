@@ -14,7 +14,8 @@ const schema = new mongoose.Schema({
   date: String,
   called_loket: {type: mongoose.Schema.Types.ObjectId, ref: 'Loket'},
   called_user: {type: mongoose.Schema.Types.ObjectId, ref: 'Users'},
-  is_hold: {type: Boolean, default: false},
+  is_mobile: {type: Boolean, default: false},
+  is_fixed: {type: Boolean, default: false},
   is_called: {type: Boolean, default: false},
   time: {type: Date, default: Date.now}
 })

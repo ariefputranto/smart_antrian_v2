@@ -26,6 +26,9 @@ async function apiRoutes(fastify, opts) {
 	// Queue
 	fastify.post('/queue/last', QueueController.getQueue)
 	fastify.post('/queue/call', QueueController.callQueue)
+	fastify.get('/queue/get-list/:id', QueueController.getListQueue)
+	fastify.post('/queue/get-hold', QueueController.holdQueue)
+	fastify.post('/queue/get-fixed', QueueController.fixedQueue)
 }
 
 module.exports = apiRoutes

@@ -30,6 +30,6 @@ fastify.register(require('../routes/user.js'), { prefix: "api/user" })
 fastify.register(require('../routes/guest.js'), { prefix: "api/guest" })
 
 // run
-fastify.listen(3000, err => {
+fastify.listen(3000, '0.0.0.0', err => {
 	if (err) throw err
 })

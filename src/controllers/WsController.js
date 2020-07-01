@@ -39,6 +39,10 @@ var WsController = (socket, req) => {
 					getUnCalledQueue(socket, data.service_id)
 					break;
 
+				case '/queue/average-waiting-time':
+					getAverageWaitingTime(socket, data.service_id)
+					break;
+
 				case '/queue/last-called-by-loket':
 					getLastCalledQueueByLoket(socket, data.service_id, data.loket_id)
 					break;
@@ -185,6 +189,7 @@ var WsController = (socket, req) => {
 		const condition = { 
 			service_id: services._id,
 			is_called: false,
+			is_fixed: true,
 			date: moment().tz('Asia/Jakarta').format('YYYY-MM-DD') 
 		}
 
@@ -224,6 +229,52 @@ var WsController = (socket, req) => {
 	    }
 	  })
 
+	}
+
+	// get average waiting time by service
+	async function getAverageWaitingTime(socket, service_id) {
+		var url = '/queue/average-waiting-time'
+		try {
+			var services = await Services.findOne({ _id: service_id })
+		} catch(e) {
+			socket.send(JSON.stringify({'statusCode': 500, 'message': e.message, 'data': {'url': url}}))
+			return
+		}
+
+		if (services == null) {
+			socket.send(JSON.stringify({'statusCode': 500, 'message': 'Service not found', 'data': {'url': url}}))
+			return
+		}
+
+		const condition = { 
+			service_id: services._id,
+			is_called: true,
+			date: moment().tz('Asia/Jakarta').format('YYYY-MM-DD') 
+		}
+
+		try {
+			var queue = await Queue.find(condition)
+
+			var queueBefore = null
+			var sumTime = 0
+			for (var i = 0; i < queue.length; i++) {
+				if (queueBefore !== null) {
+					var timeBefore = new Date(queueBefore.time)
+					var timeCurrent = new Date(queue[i].time)
+
+					var differentInSecond = Math.abs((timeCurrent.getTime() - timeBefore.getTime()) / 1000)
+					sumTime += differentInSecond
+				}
+
+				queueBefore = queue[i]
+			}
+
+			var averageTime = queue.length > 0 ? (sumTime / queue.length) : 0
+
+			socket.send(JSON.stringify({'statusCode': 200, 'message': '', 'data': {'average_time': averageTime, 'url': url}}))
+		} catch(e) {
+			socket.send(JSON.stringify({'statusCode': 500, 'message': e.message, 'data': {'url': url}}))
+		}
 	}
 }
 

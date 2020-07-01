@@ -138,6 +138,7 @@ class UserController {
 
 		var expiredIn = request.expired_in
 		var user = {
+			imei: request.imei,
 			name: "Guest " + request.imei,
 			username: "Guest#" + request.imei,
 			roles: 0,
