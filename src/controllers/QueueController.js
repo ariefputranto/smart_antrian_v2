@@ -211,8 +211,12 @@ class QueueController {
 
 			// if fixed change to hold
 			if (queue.is_fixed) {
-				queue.is_fixed = false
-				await queue.save()
+				try {
+					queue = await Queue.updateOne({ _id: queue._id }, { is_fixed:false }, { new: true, useFindAndModify: false })
+				} catch(e) {
+					reply.send({'statusCode': 500, 'message': e.message, 'data': {}})
+					return
+				}
 			}
 
 			// if queue is called
@@ -252,11 +256,6 @@ class QueueController {
 				return
 			}
 
-			if (lastQueue.length == 0) {
-				reply.send({'statusCode': 500, 'message': 'Last queue not found', 'data': {}})
-				return
-			}
-
 			// get list hold
 			condition = {
 				service_id: service._id,
@@ -282,7 +281,7 @@ class QueueController {
 
 			// get number
 			var foundCounter = 0
-			var number = lastQueue[0].number
+			var number = lastQueue.length > 0 ? lastQueue[0].number : 0
 			while (foundCounter < request.number_queue) {
 				number++
 
@@ -342,8 +341,12 @@ class QueueController {
 
 			// if fixed change to hold
 			if (!queue.is_fixed) {
-				queue.is_fixed = true
-				await queue.save()
+				try {
+					queue = await Queue.updateOne({ _id: queue._id }, { is_fixed:true }, { new: true, useFindAndModify: false })
+				} catch(e) {
+					reply.send({'statusCode': 500, 'message': e.message, 'data': {}})
+					return
+				}
 			}
 
 			// if queue is called
@@ -383,42 +386,38 @@ class QueueController {
 				return
 			}
 
-			if (lastQueue.length > 0) {
-					// get list hold
-					condition = {
-						service_id: service._id,
-						is_mobile: true,
-						date: moment().tz('Asia/Jakarta').format('YYYY-MM-DD'),
-					}
+			// get list hold
+			condition = {
+				service_id: service._id,
+				is_mobile: true,
+				date: moment().tz('Asia/Jakarta').format('YYYY-MM-DD'),
+			}
 
-					try {
-						var listHoldQueue = await Queue.find(condition)
-					} catch(e) {
-						reply.send({'statusCode': 500, 'message': e.message, 'data': {}})
-						return
-					}
+			try {
+				var listHoldQueue = await Queue.find(condition)
+			} catch(e) {
+				reply.send({'statusCode': 500, 'message': e.message, 'data': {}})
+				return
+			}
 
-					// extract number from list hold queue
-					var listNumber = []
-					if (listHoldQueue.length > 0) {
-						listNumber = listHoldQueue.map(function(el, index) {
-							return el.number
-						})
+			// extract number from list hold queue
+			var listNumber = []
+			if (listHoldQueue.length > 0) {
+				listNumber = listHoldQueue.map(function(el, index) {
+					return el.number
+				})
 
-					}
+			}
 
-					// get number
-					var foundCounter = 0
-					var number = lastQueue[0].number
-					while (foundCounter < 1) {
-						number++
+			// get number
+			var foundCounter = 0
+			var number = lastQueue.length > 0 ? lastQueue[0].number : 0
+			while (foundCounter <= 1) {
+				number++
 
-						if (listNumber.indexOf(number) === -1) {
-							foundCounter++
-						}
-					}
-			} else {
-				var number = 1
+				if (listNumber.indexOf(number) === -1) {
+					foundCounter++
+				}
 			}
 
 			var data = {
@@ -441,6 +440,44 @@ class QueueController {
 			}
 
 		}
+	}
+
+	// Get cancel queue
+	async cancelQueue (req, reply) {
+		var request = req.body
+		if (!request) {
+			reply.send({'statusCode': 500, 'message': 'Body empty', 'data': {}})
+			return
+		}
+
+		if (!request.queue_id || !request.service_id) {
+			reply.send({'statusCode': 500, 'message': 'Service id is required', 'data': {}})
+			return
+		}
+
+		try {
+			var queue = await Queue.findById(request.queue_id)
+		} catch(e) {
+			reply.send({'statusCode': 500, 'message': e.message, 'data': {}})
+			return
+		}
+
+		if (queue === null) {
+			reply.send({'statusCode': 500, 'message': 'Queue not found', 'data': {}})
+			return
+		}
+
+		// if fixed change to hold
+		if (queue.is_fixed) {
+			try {
+				queue = await Queue.updateOne({ _id: queue._id }, { is_fixed:false }, { new: true, useFindAndModify: false })
+			} catch(e) {
+				reply.send({'statusCode': 500, 'message': e.message, 'data': {}})
+				return
+			}
+		}
+
+		reply.send({'statusCode': 200, 'message': '', 'data': {'queue' : queue}})
 	}
 }
 
