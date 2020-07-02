@@ -375,7 +375,6 @@ class QueueController {
 			var condition = {
 				service_id: service._id,
 				is_mobile: false,
-				is_called: false,
 				date: moment().tz('Asia/Jakarta').format('YYYY-MM-DD'),
 			}
 
