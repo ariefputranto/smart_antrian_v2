@@ -14,7 +14,9 @@ async function apiRoutes(fastify, opts) {
 	QueueController = new QueueController()
 	
 	fastify.get('/', async (req, reply) => {
-		return {'statusCode': 200, 'message': '', 'data': req.user}
+		var user = req.user
+		delete user.password
+		return {'statusCode': 200, 'message': '', 'data': user}
 	})
 
 	// Service Provider

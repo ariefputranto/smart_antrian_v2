@@ -15,7 +15,7 @@ var WsController = (socket, req) => {
 
 	var interval = setInterval(() => {
 		pingServer(socket)
-	}, 1000)
+	}, 5000)
 
 	socket.on('message', (msg) => {
 		try {
@@ -66,7 +66,9 @@ var WsController = (socket, req) => {
 	})
 
 	function pingServer(socket) {
-		socket.send(JSON.stringify({'statusCode': 200, 'message': 'Hi client!', 'data': {}}))
+		if (socket.readyState === 1) {
+			socket.send(JSON.stringify({'statusCode': 200, 'message': 'Hi client!', 'data': {}}))
+		}
 	}
 
 	// get last called number
